@@ -1,10 +1,10 @@
-# Comparing Viromes to Mixed-Community Metagenomes
+# README
 This repository is an R Project used for the analysis of paired viromes and metagenomes as presented in [Kosmopoulos et al. (2023)](https://www.biorxiv.org/content/10.1101/2023.10.15.562385v2).
 
 Original, raw sequence reads representing freshwater, human gut, marine, and soil environments were previously generated. Freshwater reads, originally presented by [Tran et al. (2023)](https://www.biorxiv.org/content/10.1101/2023.04.19.537559v1) and deposited to the JGI Genome Portal under Proposal ID [506328](https://genome.jgi.doe.gov/portal/Paivirtimeseries/Paivirtimeseries.info.html); Marine reads, originally presented by [Pesant et al. (2015)](https://www.nature.com/articles/sdata201523) and [Sunagawa et al. (2015)](https://www.science.org/doi/10.1126/science.1261359) and deposited to the NCBI Sequence Read Archive under BioProject accessions [PRJEB1787](https://www.ncbi.nlm.nih.gov/bioproject/PRJEB1787) and [PRJEB4419](https://www.ncbi.nlm.nih.gov/bioproject/PRJEB4419); Human gut reads, originally presented by [Shkoporov et al. (2019)](https://www.cell.com/cell-host-microbe/fulltext/S1931-3128(19)30476-7?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS1931312819304767%3Fshowall%3Dtrue) and deposited to the NCBI Sequence Read Archive under BioProject accession [PRJNA545408](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA545408); Soil, originally presented by [Santos-Medellin et al. (2019)](https://www.nature.com/articles/s41396-021-00897-y) and deposited to the NCBI Sequence Read Archive under BioProject accession [PRJNA646773](https://www.ncbi.nlm.nih.gov/sra?linkname=bioproject_sra_all&from_uid=646773).
 
 # Repository organization
-`Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as viral community summary statistics, virus counts, virus host predictions, gene counts, gene annotations, and read mapping statistics.
+`Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as viral community summary statistics, virus counts, virus-host predictions, gene counts, gene annotations, and read mapping statistics.
 
 `Tables` include `.csv` formatted data tables used in analyses to generate the data files present in `Data`.
 
