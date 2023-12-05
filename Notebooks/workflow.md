@@ -213,7 +213,7 @@ def VirStats2df(pathfile):
     return data_frame2
 
 data_frame_virstats = VirStats2df("viwrap_virus_stats_paths.txt")
-data_frame_virstats.to_csv("Tables/virus_stats.tsv", sep="\t")
+data_frame_virstats.to_csv("virus_stats.tsv", sep="\t")
 ```
 
 ## Get additional virus-level info from ViWrap
@@ -257,9 +257,9 @@ for root, dirs, files in os.walk(parent_dir): # Walk through contents of ViWrap 
                 df_tax_list.append(df_tax)
 
 df_virus_concat = pd.concat(df_virus_list, axis = 0)
-df_virus_concat.to_csv(f"{outdir_vir}virus_summary_info_combined.tsv", sep = "\t")
+df_virus_concat.to_csv(f"{outdir_vir}virus_summary_info_combined.csv")
 df_tax_concat = pd.concat(df_tax_list, axis = 0)
-df_tax_concat.to_csv(f"{outdir_tax}virus_tax_classification_results_combined.tsv", sep = "\t")
+df_tax_concat.to_csv(f"{outdir_tax}virus_tax_classification_results_combined.csv")
 ```
 
 ## Get read recruitment from ViWrap
@@ -373,7 +373,7 @@ def main():
     df = pd.DataFrame({"Sample" : [sample], "sum_paired_reads_mapped_to_contigs" : [readsum]})
     df_list.append(df)
   df = pd.concat(df_list)
-  df.to_csv("Tables/read_mapping_stats_sum.tsv", sep="\t", index=False)
+  df.to_csv("Tables/read_mapping_stats_sum.csv", index=False)
 
 if __name__ == "__main__":
   main()
@@ -416,7 +416,7 @@ for root, dirs, files in os.walk(parent):
             df = pd.DataFrame({"Sample" : [sample], "sum_paired_reads_mapped_to_contigs_10000" : [read_pairs]})
             df_list.append(df)
 df = pd.concat(df_list)
-df.to_csv("Tables/read_mapping_stats_contigs10000_sum.tsv", sep="\t", index=False)
+df.to_csv("Tables/read_mapping_stats_contigs10000_sum.csv", index=False)
 ```
 
 # Read mapping to viral genomes
@@ -606,11 +606,27 @@ for BAM in map_species_vmags/mapfiles/marine/*.filtered.bam; do
   NAME=${BASE%%.*}
   coverm genome -b $BAM -d virus_species_fastas/marine/ \
   -x fasta -m covered_fraction --min-covered-fraction 0 \
-  -o vmag_coverage/tara/$NAME.covered_fraction.cov -t 10
+  -o vmag_coverage/marine/$NAME.covered_fraction.cov -t 10
 done
 ```
 
-## Combine genome breadth tables into matrices for each environment
+## Generate trimmed mean genome coverage tables with CoverM
+
+Requires CoverM v0.6.1.
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+for BAM in map_species_vmags/mapfiles/marine/*.filtered.bam; do
+  BASE=$(basename $BAM)
+  NAME=${BASE%%.*}
+  coverm genome -b $BAM -d virus_species_fastas/marine/ \
+  -x fasta -m trimmed_mean \
+  -o vmag_coverage/marine/$NAME.trimmed_mean.cov -t 10
+done
+```
+
+## Combine coverM tables into matrices for each environment
 
 ``` python3
 import pandas as pd
@@ -622,15 +638,22 @@ outparent = "Tables/"
 
 for env in envs:
     path = parent + env
+    df_means_list = []
     df_fractions_list = []
     for file in glob.glob(path + "/*"):
         df = pd.read_csv(file, sep = "\t", index_col=0)
         df.index.name = None
         df.columns = [df.columns[0].split(".")[0]]
-        if file.endswith(".covered_fraction.cov"):
+        if file.endswith(".trimmed_mean.cov"):
+            df_means_list.append(df)
+        elif file.endswith(".covered_fraction.cov"):
             df_fractions_list.append(df)
+        else:
+            pass
+    df_means = pd.concat(df_means_list, axis = 1)
+    df_means.to_csv(f"{outparent}trimmed_means_{env}.csv")
     df_fractions = pd.concat(df_fractions_list, axis = 1)
-    df_fractions.to_csv(f"{outparent}covered_fraction_{env}.tsv", sep = "\t")
+    df_fractions.to_csv(f"{outparent}covered_fraction_{env}.csv")
 ```
 
 # Identify candidate genomes assembled from viromes and metagenomes to compare
@@ -1073,7 +1096,7 @@ for env in envs:
         df.columns = [df.columns[0].split(".")[0]]
         df_counts_list.append(df)
     df_counts = pd.concat(df_counts_list, axis = 1)
-    df_counts.to_csv(f"{outparent}gene_counts_{env}.tsv", sep = "\t")
+    df_counts.to_csv(f"{outparent}gene_counts_{env}.csv")
 ```
 
 ## Predict gene functions with Pharokka
