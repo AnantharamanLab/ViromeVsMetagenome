@@ -5,7 +5,7 @@ James C. Kosmopoulos
 
 # READ ME
 
-The following is the *general* workflow used to for the virome
+The following is the general workflow used to for the virome
 vs. metagenome analysis. Basic commands and scripts are given that were
 applied to the four tested environments, separately. Some commands have
 variable arguments that will need to be updated for the user that is
@@ -16,7 +16,6 @@ reproducing this analysis.
 ## Interleave reads with BBTools reformat.sh
 
 ``` bash
-#!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx300g"
 for F in raw_reads/*_1.fastq; do
@@ -34,7 +33,6 @@ done
 ## Get read length statistics with BBTools readlen.sh
 
 ``` bash
-#!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx300g"
 for F in raw_reads/*.fastq.gz; do
@@ -46,10 +44,9 @@ for F in raw_reads/*.fastq.gz; do
 done
 ```
 
-## Run BBTools rwcfilter2.sh on interleaved reads
+## Run BBTools rqcfilter2.sh on interleaved reads
 
 ``` bash
-#!/bin/bash
 # Requires BBTools suite v38.86
 DATADIR="RQCFilterData"
 MEM="Xmx100g"
@@ -69,7 +66,6 @@ done
 ## Read error correction with BBTools bbcms.sh
 
 ``` bash
-#!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx100g"
 THREADS="16"
@@ -84,7 +80,6 @@ done
 ## Separate paired and unpaired reads with BBTools repair.sh
 
 ``` bash
-#!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx100g"
 for F in corrected_reads/*_corrected.fastq.gz; do
@@ -113,7 +108,6 @@ spades.py -m 512 --tmp-dir spades_tmp -o spades_assemblies/SRR8487010_spades_out
 ## Move assembled contigs into a new folder
 
 ``` bash
-#!/bin/bash
 SRC_DIR="spades_assemblies"
 DEST_DIR="assembly_fastas"
 
@@ -139,7 +133,6 @@ metaquast assembly_fastas/*_contigs.fna \
 ## Separate read mates for ViWrap
 
 ``` bash
-#!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx100g"
 MAX_JOBS=11
@@ -473,7 +466,6 @@ for root, dirs, files in os.walk(parent_path):
 ## Combine fastas from the same environment into one, each
 
 ``` bash
-#!/bin/bash
 find virus_genomes/individual/human_gut/ -name "*.fasta" -print0 | xargs -0 cat > virus_genomes/human_gut_vmags.fasta
 
 find virus_genomes/individual/freshwater/ -name "*.fasta" -print0 | xargs -0 cat > virus_genomes/freshwater_vmags.fasta
@@ -486,7 +478,6 @@ find virus_genomes/individual/soil/ -name "*.fasta" -print0 | xargs -0 cat > vir
 ## Get a list of the paths to all of these VMAGs, to be dereplicated, below
 
 ``` bash
-#!/bin/bash
 find virus_genomes/individual/human_gut -name "*.fasta" > virus_genomes/individual/human_gut_indiv_redundant_vmags_list.txt
 
 find virus_genomes/individual/freshwater -name "*.fasta" > virus_genomes/individual/freshwater_indiv_redundant_vmags_list.txt
@@ -642,6 +633,455 @@ for env in envs:
     df_fractions.to_csv(f"{outparent}covered_fraction_{env}.tsv", sep = "\t")
 ```
 
+# Identify candidate genomes assembled from viromes and metagenomes to compare
+
+I did this iteratively by manually searching through the summary info
+tables for the species-representative vMAGs (in decreasing order of
+genome length) until I found a vMAG that satisfied the criteria laid out
+in the methods of the paper:
+
+- One vMAG was assembled from a virome and the other a metagenome
+- Each vMAG in the pair was placed in the same species-level cluster
+- Both vMAGs were assembled from the same sample source
+- The virome-assembled vMAG was a single contig and predicted by CheckV
+  to be complete
+- The metagenome-assembled vMAG was predicted by CheckV to be incomplete
+
+This ended up being the vMAG named Ga0485184\_\_vRhyme_unbinned_566. So,
+I used this in the example below.
+
+## First, get species cluster membership information from dRep
+
+``` python3
+import csv
+
+def find_secondary_cluster(input_file_path, query):
+    # Read the input file
+    with open(input_file_path, 'r') as file:
+        reader = csv.DictReader(file)
+        data = list(reader)
+
+    # Extract genomes and secondary clusters
+    genomes_secondary_clusters = [(row['genome'].replace(".fasta",""), row['secondary_cluster']) for row in data]
+
+    # Find the secondary cluster for the queried genome
+    for genome, secondary_cluster in genomes_secondary_clusters:
+        if genome == query:
+            return secondary_cluster, [g for g, s in genomes_secondary_clusters if s == secondary_cluster]
+
+    return None, None
+
+freshwater_members = find_secondary_cluster("/storage2/scratch/kosmopoulos/virome_vs_metagenome/dRep_out/freshwater/data_tables/Cdb.csv", "Ga0485184__vRhyme_unbinned_566")
+print(freshwater_members)
+```
+
+This resulted in the following:
+`('4649_3', ['Ga0485171__vRhyme_unbinned_192', 'Ga0485172__vRhyme_unbinned_38', 'Ga0485184__vRhyme_unbinned_566'])`.
+Of these, the vMAG that is from the same sample source (to satisfy the
+third criterion above) is Ga0485172\_\_vRhyme_unbinned_38.
+
+## Map reads to the two vMAGs
+
+### Create Bowtie2 indices for each vMAG
+
+Requires Bowtie2 v2.5.1
+
+``` bash
+bowtie2-build --threads 30 \
+virus_genomes/individual/freshwater/Ga0485184__vRhyme_unbinned_566.fasta \
+map_species_vmags/indexes/individual/Ga0485184__vRhyme_unbinned_566
+
+bowtie2-build --threads 30 \
+virus_genomes/individual/freshwater/Ga0485172__vRhyme_unbinned_38.fasta \
+map_species_vmags/indexes/individual/Ga0485172__vRhyme_unbinned_38
+```
+
+### Map reads to vMAG indices
+
+Map reads from each sample source to each vMAG, so four Bowtie2 runs.
+Requires Bowtie2 v2.5.1.
+
+``` bash
+bowtie2 --end-to-end -p 30 \
+-x map_species_vmags/indexes/individual/Ga0485172__vRhyme_unbinned_38 --mm \
+-1 repaired_reads/Ga0485172_R1.fastq.gz -2 repaired_reads/Ga0485172_R2.fastq.gz \
+-S map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485172__vRhyme_unbinned_38.sam
+
+bowtie2 --end-to-end -p 30 \
+-x map_species_vmags/indexes/individual/Ga0485184__vRhyme_unbinned_566 --mm \
+-1 repaired_reads/Ga0485172_R1.fastq.gz -2 repaired_reads/Ga0485172_R2.fastq.gz \
+-S map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485184__vRhyme_unbinned_566.sam
+
+bowtie2 --end-to-end -p 30 \
+-x map_species_vmags/indexes/individual/Ga0485172__vRhyme_unbinned_38 --mm \
+-1 repaired_reads/Ga0485184_R1.fastq.gz -2 repaired_reads/Ga0485184_R2.fastq.gz \
+-S map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485172__vRhyme_unbinned_38.sam
+
+bowtie2 --end-to-end -p 30 \
+-x map_species_vmags/indexes/individual/Ga0485184__vRhyme_unbinned_566 --mm \
+-1 repaired_reads/Ga0485184_R1.fastq.gz -2 repaired_reads/Ga0485184_R2.fastq.gz \
+-S map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.sam
+```
+
+### Convert sam to sorted bam
+
+Using SAMtools v1.17
+
+``` bash
+samtools view -bS map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485172__vRhyme_unbinned_38.sam | samtools sort -o map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485172__vRhyme_unbinned_38.bam
+
+samtools view -bS map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485184__vRhyme_unbinned_566.sam | samtools sort -o map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485184__vRhyme_unbinned_566.bam
+
+samtools view -bS map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485172__vRhyme_unbinned_38.sam | samtools sort -o map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485172__vRhyme_unbinned_38.bam
+
+samtools view -bS map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.sam | samtools sort -o map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.bam
+
+ls map_species_vmags/mapfiles/individual/*.bam | parallel --jobs 4 'samtools index {}'
+```
+
+### Get read depths per base for each mapfile
+
+Using SAMtools v1.17
+
+``` bash
+samtools depth map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485172__vRhyme_unbinned_38.bam > vmag_coverage/Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov
+
+samtools depth map_species_vmags/mapfiles/individual/Ga0485172_to_Ga0485184__vRhyme_unbinned_566.bam > vmag_coverage/Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
+
+samtools depth map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485172__vRhyme_unbinned_38.bam > vmag_coverage/Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov
+
+samtools depth map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.bam > vmag_coverage/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
+```
+
+The four resulting files were manually combined into one table with an
+added column specifying the read sample.
+
+## Run Pharokka on each vMAG to obtain genome annotations
+
+Requires Pharokka v1.4.1
+
+``` bash
+pharokka.py -i virus_genomes/individual/freshwater/Ga0485184__vRhyme_unbinned_566.fasta \
+-o pharokka_out/indiv_genomes/Ga0485184__vRhyme_unbinned_566 \
+-p Ga0485184__vRhyme_unbinned_566 \
+-d pharokka_db -t 30 -g phanotate --dnaapler
+
+pharokka.py -i virus_genomes/individual/freshwater/Ga0485172__vRhyme_unbinned_38.fasta \
+-o pharokka_out/indiv_genomes/Ga0485172__vRhyme_unbinned_38 \
+-p Ga0485172__vRhyme_unbinned_38 \
+-d pharokka_db -t 30 -g phanotate --dnaapler
+```
+
 # Read mapping to viral genes
 
 For differential abundance analysis.
+
+## Gather protein-coding genes identified on viral contigs
+
+``` python3
+import os
+import shutil
+
+parent_path = "ViWrap_out"
+out_dir = "virus_genes"
+
+all_genes_gut = ""
+all_genes_fw = ""
+all_genes_mar = ""
+all_genes_soil = ""
+
+cluster_list_dict = dict()
+for root, dirs, files in os.walk(parent_path): 
+    if "Virus_genomes_files" in root:
+        sample = root.split("/")[-3]
+        sample = sample.replace("_ViWrap_out", "")
+        for file in files:
+            if file.endswith(".ffn"):
+                fasta = f"{root}/{file}"
+                newfilename = f"{sample}__{file}"
+                if "human_gut" in root:
+                    env = "human_gut"
+                    outpath = f"{out_dir}/individual/{env}/{newfilename}"
+                    with open(outpath, "wb") as fdst:
+                        with open(fasta, "rb") as fsrc:
+                            shutil.copyfileobj(fsrc, fdst)
+                    with open(fasta, "r") as fsrc:
+                        lines = fsrc.readlines()
+                    for line in lines:
+                        all_genes_gut += line
+                elif "freshwater" in root:
+                    env = "freshwater"
+                    outpath = f"{out_dir}/individual/{env}/{newfilename}"
+                    with open(outpath, "wb") as fdst:
+                        with open(fasta, "rb") as fsrc:
+                            shutil.copyfileobj(fsrc, fdst)
+                    with open(fasta, "r") as fsrc:
+                        lines = fsrc.readlines()
+                    for line in lines:
+                        all_genes_fw += line
+                elif "marine" in root:
+                    env = "marine"
+                    outpath = f"{out_dir}/individual/{env}/{newfilename}"
+                    with open(outpath, "wb") as fdst:
+                        with open(fasta, "rb") as fsrc:
+                            shutil.copyfileobj(fsrc, fdst)
+                    with open(fasta, "r") as fsrc:
+                        lines = fsrc.readlines()
+                    for line in lines:
+                        all_genes_mar += line
+                elif "soil" in root:
+                    env = "soil"
+                    outpath = f"{out_dir}/individual/{env}/{newfilename}"
+                    with open(outpath, "wb") as fdst:
+                        with open(fasta, "rb") as fsrc:
+                            shutil.copyfileobj(fsrc, fdst)
+                    with open(fasta, "r") as fsrc:
+                        lines = fsrc.readlines()
+                    for line in lines:
+                        all_genes_soil += line
+with open(f"{out_dir}/human_gut_virus_genes_combined.ffn", "w") as out_all_gut:
+    out_all_gut.write(all_genes_gut)
+with open(f"{out_dir}/freshwater_virus_genes_combined.ffn", "w") as out_all_fw:
+    out_all_fw.write(all_genes_fw)
+with open(f"{out_dir}/marine_virus_genes_combined.ffn", "w") as out_all_mar:
+    out_all_mar.write(all_genes_mar)
+with open(f"{out_dir}/soil_virus_genes_combined.ffn", "w") as out_all_soil:
+    out_all_soil.write(all_genes_soil)
+```
+
+## Dereplicate and cluster viral genes with mmseqs2
+
+Requires mmseqs2 v14.7e284
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+mmseqs easy-search virus_genes/marine_virus_genes_combined.ffn \
+virus_genes/marine_virus_genes_combined.ffn \
+virus_genes/marine_virus_genes.mmseqs.tsv \
+virus_genes/easy-search_tmp \
+--threads 90 -s 7.5 --min-seq-id 0.95 -c 0.80 --cov-mode 1 --search-type 3 --format-mode 4 \
+--format-output query,target,evalue,gapopen,pident,fident,nident,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,mismatch
+```
+
+## Make a three-column table from the outputs
+
+``` python3
+import pandas as pd
+
+dflist = ["virus_genes/human_gut_virus_genes.mmseqs.tsv",
+          "virus_genes/freshwater_virus_genes.mmseqs.tsv",
+          "virus_genes/marine_virus_genes.mmseqs.tsv",
+          "virus_genes/soil_virus_genes.mmseqs.tsv"
+          ]
+
+for df in dflist:
+    gene_mmseqs_df = pd.read_table(df, index_col=None)
+    gene_mmseqs_df = gene_mmseqs_df[["query","target","pident"]]
+    gene_mmseqs_df = gene_mmseqs_df.drop_duplicates(ignore_index=True) # Remove duplicate rows that result from clustering database against itself
+    gene_mmseqs_df = gene_mmseqs_df.query("query != target") # Remove rows with matches to the same exact sequence that result from clustering database against itself
+    gene_mmseqs_df = gene_mmseqs_df.drop_duplicates(subset=["query", "target"], keep='first') # Remove rows with duplicate pairs in reverse (i.e. if there is query: A and target : B above remove rows where query : B and target : A)
+    outname = df.replace("virus_genes.mmseqs.tsv", "virus_genes_minid95_mincov80_comparisons.tsv")
+    gene_mmseqs_df.to_csv(outname, sep="\t", index=False, header=False)
+```
+
+## Produce a clustered graph from the processes mmseqs output using mcl
+
+Requires mcxload v14-137
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+mcxload -abc virus_genes/marine_virus_genes_minid95_mincov80_comparisons.tsv \
+-o virus_genes/marine_genesA.mci \
+-write-tab virus_genes/marine_genesB.mcltab
+
+# Write to file with mcl
+mcl virus_genes/marine_genesA.mci \
+-use-tab virus_genes/marine_genesB.mcltab \
+-o virus_genes/marine_genes_out.clusters
+```
+
+## Pick the “best” genes to represent clusters
+
+“Best” here will just be the longest gene in each cluster, similar to
+how the best viral genome was chosen by dRep, above.
+
+``` python3
+import sys
+import pandas as pd
+from Bio import SeqIO
+import json
+from multiprocessing import Pool, cpu_count
+import math
+
+def get_lengths(fasta, out):
+    parent = out.split("/")[:-1]
+    parent = "/".join(parent)
+    out_table = parent + "/gene_lengths.csv"
+    rows = []
+    with open(fasta, 'r') as FastaFile:
+        for rec in SeqIO.parse(FastaFile, 'fasta'):
+            seqLen = len(rec)
+            name = rec.id
+            rows.append(pd.DataFrame({"gene" : [name], "length" : [seqLen]}))
+    df = pd.concat(rows, ignore_index=True)
+    df.to_csv(out_table, index=False)
+    return df
+
+def parse_clusters(chunk_all_lengths):
+    chunk, all_lengths_dict = chunk_all_lengths
+    start_line, end_line = chunk
+    winners = dict()
+    members = dict()
+    with open(clusterf) as f:
+        for line in f.readlines()[start_line:end_line]:
+            line = line.strip() 
+            genes = line.split("\t")
+            clust_name = f"clust_{genes[0]}"
+            lengths_dict = {}
+            for gene in genes:
+                length = all_lengths_dict[gene]
+                lengths_dict[gene] = length
+            largest = max(lengths_dict, key=lengths_dict.get)
+            winners[clust_name] = largest
+            members[largest] = genes
+    return winners, members
+
+def out_list(win_dict):
+    out_string = ""
+    for key in win_dict.keys():
+        winner = win_dict[key]
+        out_string += f"{winner}\n"
+    return out_string
+
+clusterf = sys.argv[1]
+gene_fasta = sys.argv[2]
+out = sys.argv[3]
+parent = out.split("/")[:-1]
+parent = "/".join(parent)
+out_members = parent + "/gene_members.json"
+processes = min(cpu_count(), 30)
+
+chunks = []
+with open(clusterf) as f:
+    lines = f.readlines()
+    chunk_size = int(math.ceil(len(lines) / processes))
+    for i in range(processes):
+        start_line = i * chunk_size
+        end_line = min((i + 1) * chunk_size, len(lines))
+        chunks.append((start_line, end_line))
+
+df = get_lengths(gene_fasta, out)
+all_lengths_dict = df.set_index('gene')['length'].to_dict()
+
+with Pool(processes=processes) as pool:
+        combined_args = [(chunk, all_lengths_dict) for chunk in chunks]
+        results = pool.map(parse_clusters, combined_args)
+winners = {}
+members = {}
+for result in results:
+    result_winners, result_members = result
+    winners.update(result_winners)
+    members.update(result_members)
+
+outfile = out_list(winners)
+with open(out, "w") as f:
+    f.write(outfile)
+with open(out_members, "w") as out_json:
+    json.dump(members, out_json, indent=4)
+```
+
+### Execute the script above for each environment
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+python3 choose_genes.py virus_genes/marine_genes_out.clusters virus_genes/marine_virus_genes_combined.ffn virus_genes/marine_best_genes.txt
+```
+
+## Build a Bowtie2 mapping index of the best genes in each environment
+
+Requires Bowtie2 v2.5.1.
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+bowtie2-build virus_genes/marine_best_genes.fna virus_genes/bowtie2_index_genes/marine_bowtie2_index_genes --threads 90
+```
+
+## Convert sam to sorted bam
+
+Using SAMtools v1.17
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+ls virus_genes/bowtie2_out/marine/*.sam | parallel --jobs 42 'samtools view -bS {} | samtools sort -o /storage2/scratch/kosmopoulos/virome_vs_metagenome/virus_genes/bowtie2_out/marine/{.}.bam -' &
+```
+
+## Index sorted bam files
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+ls virus_genes/bowtie2_out/marine/*.bam | parallel --jobs 42 'samtools index {}' &
+```
+
+## Filter reads mapping \>= 90% identity with CoverM
+
+Requires CoverM v0.6.1
+
+``` bash
+# Execute in mapfile dir for each environment
+for BAM in *.bam; do NAME=${BAM%.*}
+  coverm filter -b $BAM -o $NAME.filtered.bam --min-read-percent-identity 90 --threads 10
+done
+
+ls *.filtered.bam | parallel --jobs 42 'samtools index {}' & # indexes filtered bam files, too
+```
+
+## Generate mapped read count tables with CoverM
+
+Requires CoverM v0.6.1.
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+for BAM in virus_genes/bowtie2_out/marine/*.filtered.bam; do
+  BASE=$(basename $BAM)
+  NAME=${BASE%%.*}
+  coverm contig -b $BAM -m count --min-covered-fraction 0 -o virus_genes/bowtie2_out/marine/$NAME.counts -t 30
+done
+```
+
+## Combine genome breadth tables into matrices for each environment
+
+``` python3
+parent = "virus_genes/bowtie2_out/"
+envs = ["human_gut", "freshwater", "marine", "soil"]
+outparent = "Tables/"
+
+for env in envs:
+    path = parent + env
+    df_counts_list = []
+    df_means_list = []
+    df_fractions_list = []
+    for file in glob.glob(path + "/*.counts"):
+        df = pd.read_csv(file, sep = "\t", index_col=0)
+        df.index.name = None
+        df.columns = [df.columns[0].split(".")[0]]
+        df_counts_list.append(df)
+    df_counts = pd.concat(df_counts_list, axis = 1)
+    df_counts.to_csv(f"{outparent}gene_counts_{env}.tsv", sep = "\t")
+```
+
+## Predict gene functions with Pharokka
+
+Requires Pharokka v1.4.1
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+pharokka.py -i virus_genes/marine_virus_genes_combined.ffn -o pharokka_out/marine/ -d pharokka_db -t 100 -f -g prodigal -m
+```
