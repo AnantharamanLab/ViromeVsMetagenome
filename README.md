@@ -16,9 +16,10 @@ Original, raw sequence reads representing freshwater, human gut, marine, and soi
 1. [Bioinformatic workflow](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/workflow.md)
 2. [Gather and organize data](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/data.md)
 3. [Figure 2, Figure S1, Figure S2, Figure S3](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/summary_stats.md)
-4. [Figure 3, Figure S4, Figure S5, Figure S6](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/presence_absence.md)
-5. [Figure 4, Table S4, Table S5](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/compare_genomes.md)
-6. [Figure 5, Table S2, Table S3](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/gene_deseq.md)
+4. [Figure 3, Figure S4, Figure S5](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/presence_absence.md)
+5. [Figure S6](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/specaccum.md)
+6. [Figure 4, Table S4, Table S5](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/compare_genomes.md)
+7. [Figure 5, Table S2, Table S3](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/gene_deseq.md)
 
 # 
 **James C. Kosmopoulos | kosmopoulos \[at\] wisc \[dot\] edu**<br>
