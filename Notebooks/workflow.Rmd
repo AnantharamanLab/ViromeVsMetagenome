@@ -1,0 +1,610 @@
+---
+title: "General bioinformatics workflow"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+# READ ME
+The following is the *general* workflow used to for the virome vs. metagenome analysis. Basic commands and scripts are given that were applied to the four tested environments, separately. Some commands have variable arguments that will need to be updated for the user that is reproducing this analysis.
+
+# Read QC and processing
+## Interleave reads with BBTools reformat.sh
+```{bash run_reformat.sh}
+#!/bin/bash
+# Requires BBTools suite v38.86
+MEM="Xmx300g"
+for F in raw_reads/*_1.fastq; do
+	R=${F%_*}_2.fastq
+	BASE=${F##*/}
+	SAMPLE=${BASE%_*}
+	OUT="/raw_reads/$SAMPLE.fastq"
+	reformat.sh -$MEM in=$F in2=$R out=$OUT
+	gzip $OUT
+	rm $F
+	rm $R
+done
+```
+
+## Get read length statistics with BBTools readlen.sh
+````{bash run_readlen.sh}
+#!/bin/bash
+# Requires BBTools suite v38.86
+MEM="Xmx300g"
+for F in raw_reads/*.fastq.gz; do
+	echo $F
+	BASE=${F##*/}
+	SAMPLE=${BASE%?????????}
+  OUT="/processed_reads/"$SAMPLE"_readlen.txt"
+	readlength.sh -$MEM in=$F out=$OUT overwrite
+done
+```
+
+## Run BBTools rwcfilter2.sh on interleaved reads
+```{bash run_rqcfilter2.sh}
+#!/bin/bash
+# Requires BBTools suite v38.86
+DATADIR="RQCFilterData"
+MEM="Xmx100g"
+THREADS="16"
+for F in raw_reads/*.fastq.gz; do
+        BASE=${F##*/}
+        SAMPLE=${BASE%?????????}
+        OUT="/processed_reads/"$SAMPLE"_filtered.fastq.gz"
+        rqcfilter2.sh -$MEM chastityfilter=f jni=t in=$F rqcfilterdata=$DATADIR \
+        path=filter rna=f trimfragadapter=t qtrim=r trimq=0 maxns=3 maq=3 minlen=51 \
+        mlf=0.33 phix=t removehuman=t removedog=t removecat=t removemouse=t khist=t \
+        removemicrobes=f sketch kapa=t clumpify=t tmpdir= barcodefilter=f trimpolyg=5 usejni=f \
+        out=$OUT threads=$THREADS
+done
+```
+
+## Read error correction with BBTools bbcms.sh
+```{bash run_bbcms.sh}
+#!/bin/bash
+# Requires BBTools suite v38.86
+MEM="Xmx100g"
+THREADS="16"
+for F in processed_reads/*_filtered.fastq.gz; do
+	BASE=${F##*/}
+	SAMPLE=${BASE%??????????????????}
+	OUT="corrected_reads/"$SAMPLE"_corrected.fastq.gz"
+	bbcms.sh -$MEM t=$THREADS mincount=2 highcountfraction=0.6 in=$F out=$OUT
+done
+```
+
+## Separate paired and unpaired reads with BBTools repair.sh
+```{bash run_repair.sh}
+#!/bin/bash
+# Requires BBTools suite v38.86
+MEM="Xmx100g"
+for F in corrected_reads/*_corrected.fastq.gz; do
+	BASE=${F##*/}
+	SAMPLE=${BASE%???????????????????}
+	OUT="repaired_reads/"$SAMPLE"_repaired.fastq.gz"
+  OUTS="repaired_reads/"$SAMPLE"_singletons.fastq.gz"
+	repair.sh -$MEM in=$F out=$OUT outs=$OUTS repair
+done
+```
+
+# Assemble error-corrected reads with SPAdes
+## Run SPAdes
+Run for every set of error-corrected, interleaved, paired and unpaired reads. Command for one sample is given as an example.
+
+```{bash spades.py}
+# Requires metaSPAdes v3.13.0
+spades.py -m 512 --tmp-dir spades_tmp -o spades_assemblies/SRR8487010_spades_out \
+--only-assembler -k 33,55,77,99,127 --meta -t 30 \
+--12 repaired_reads/SRR8487010_repaired.fastq.gz -s repaired_reads/SRR8487010_singletons.fastq.gz
+```
+
+## Move assembled contigs into a new folder
+```{bash move_contigs.sh}
+#!/bin/bash
+SRC_DIR="spades_assemblies"
+DEST_DIR="assembly_fastas"
+
+for folder in ${SRC_DIR}/*_spades_out; do
+     SAMPLE_NAME=$(basename $folder | cut -d'_' -f1)
+     SRC_FILE="${folder}/contigs.fasta"
+     DEST_FILE="${DEST_DIR}/${SAMPLE_NAME}_contigs.fna"
+     cp $SRC_FILE $DEST_FILE
+done
+```
+
+## Get assembly reports from metaQUAST
+```{bash run-metaquast}
+# Requires metaQUAST v5.2.0 
+metaquast assembly_fastas/*_contigs.fna \
+-m 2000 --contig-thresholds 0,2000,5000,10000,25000,50000 \
+--max-ref-number 0 --fast -s -o metaquast_reports
+```
+
+# Run ViWrap
+## Separate read mates for ViWrap
+```{bash separate_mates.sh}
+#!/bin/bash
+# Requires BBTools suite v38.86
+MEM="Xmx100g"
+MAX_JOBS=11
+execute_repair() {
+    local F="$1"
+    local BASE="${F%_repaired.fastq.gz}"
+    local SAMPLE="${BASE##*/}"
+    local OUT="$2/"$SAMPLE"_1.fastq.gz"
+    local OUT2="$2/"$SAMPLE"_2.fastq.gz"
+    bash repair.sh -$MEM in=$F out=$OUT out2=$OUT2 repair overwrite
+}
+
+count=0
+for F in repaired_reads/*_repaired.fastq.gz; do
+    execute_repair "$F" "repaired_reads" &
+    ((count++))
+    if (( count % MAX_JOBS == 0 )); then
+        wait
+    fi
+done
+wait
+```
+
+## Execute ViWrap
+Run for every assembly along with its corresponding sets of paired reads. Command for one sample is given as an example.
+
+```{bash run-viwrap}
+# Requires ViWrap v1.2.1
+ViWrap run --input_metagenome assembly_fastas/SRR8487010_contigs.fna \
+--input_reads repaired_reads/SRR8487010_R1.fastq.gz,repaired_reads/SRR8487010_R2.fastq.gz \
+--out_dir ViWrap_out/SRR8487010_ViWrap_out \
+--db_dir ViWrap_db --threads 10 \
+--identify_method vb \
+--conda_env_dir ViWrap_conda_environments \
+--input_length_limit 10000 --reads_mapping_identity_cutoff 0.90
+```
+
+## Get virus stats from ViWrap
+### First need to get a path of all summary stat files generated by ViWrap
+```{bash get-virus-stats}
+find ViWrap_out -name "virus_statistics.txt" > viwrap_virus_stats_paths.txt
+```
+
+### Now parse and combine results using python
+```{python3 merge_virus_stats.py}
+import os
+import pandas as pd
+
+def VirStats2df(pathfile):
+    # Subset existing dataframe to get table of samples
+    data_frame_pre = data_frame_plus[["sample_source", "Environment", "Method"]]
+    data_frame_pre.index.name = None
+
+    with open(pathfile) as f:
+        paths = [line.rstrip() for line in f]
+
+    df_list = list()
+
+    for path in paths:
+        sample = path.replace("_ViWrap_out/09_Virus_statistics_visualization/Result_visualization_inputs/virus_statistics.txt", "")
+        samples = sample.split("/")
+        sample = (samples[-1:])[0]
+        df =  pd.read_csv(path, sep="\t")
+        df.insert(0, "Sample", sample)
+        df = df.set_index(["Sample"])
+        df.index.name = None
+        df_list.append(df)
+    
+    data_frame = pd.concat(df_list)
+    data_frame2 = pd.concat([data_frame_pre, data_frame], axis = 1)
+    data_frame2 = data_frame2.apply(pd.to_numeric, errors='ignore')
+    data_frame2.columns = data_frame2.columns.str.replace("[.]", "")
+    return data_frame2
+
+data_frame_virstats = VirStats2df("viwrap_virus_stats_paths.txt")
+data_frame_virstats.to_csv("Tables/virus_stats.tsv", sep="\t")
+```
+
+## Get additional virus-level info from ViWrap
+Such as predicted lytic state (will combine "scaffold" and "virus" distinctions), CheckV quality, and taxonomy
+
+```{python3 virus_summary_info.py}
+import os
+import pandas as pd
+
+parent_dir = "ViWrap_out/"
+outdir_vir = "Tables/"
+outdir_tax = "Tables/"
+
+df_virus_list = list()
+df_tax_list = list()
+
+# Get paths to needed files containing virus data:
+for root, dirs, files in os.walk(parent_dir): # Walk through contents of ViWrap results directory
+    if "08_ViWrap_summary_outdir" in root:
+        for file in files:
+            if "Virus_summary_info.txt" in file: # We want this file
+                filepath = root + "/" + file
+                sample = (filepath.split("/")[-3]).replace("_ViWrap_out", "")
+                newname = f"{sample}_Virus_summary_info.txt"
+                df_virus = pd.read_csv(filepath, sep="\t", index_col=False)
+                df_virus = df_virus.rename(columns = {"Unnamed: 0":"genome"})
+                df_virus = df_virus.replace("vRhyme_",f"{sample}__vRhyme_", regex=True) # Add sample prefix to VMAG name
+                df_virus["sample"] = [sample] * len(df_virus.index)
+                df_virus = df_virus.set_index("sample", drop=True)
+                df_virus_list.append(df_virus)
+            if "Tax_classification_result.txt" in file: # We want this file
+                filepath = root + "/" + file
+                sample = (filepath.split("/")[-3]).replace("_ViWrap_out", "")
+                newname = f"{sample}_Tax_classification_result.txt"
+                df_tax = pd.read_csv(filepath, index_col=False, names=["genome", "taxonomy", "source"], sep = "\t")
+                df_tax = df_tax.replace("vRhyme_",f"{sample}__vRhyme_", regex=True)
+                df_tax["sample"] = [sample] * len(df_tax.index)
+                df_tax = df_tax.set_index("sample", drop=True)
+                df_tax_list.append(df_tax)
+
+df_virus_concat = pd.concat(df_virus_list, axis = 0)
+df_virus_concat.to_csv(f"{outdir_vir}virus_summary_info_combined.tsv", sep = "\t")
+df_tax_concat = pd.concat(df_tax_list, axis = 0)
+df_tax_concat.to_csv(f"{outdir_tax}virus_tax_classification_results_combined.tsv", sep = "\t")
+```
+
+## Get read recruitment from ViWrap
+### For only viral contigs identified by VIBRANT
+Also assuming input length requirement for ViWrap/VIBRANT was 10 kb.
+
+Requires SAMtools v1.17
+
+```{python3 reads_mapped_viral.py}
+import multiprocessing
+import subprocess
+import os
+import pandas as pd
+
+parent = "ViWrap_out/"
+
+contig_dict = {}
+for root, dirs, files in os.walk(parent):
+    for file in files:
+        if file.endswith(".phages_combined.fna"):
+            filepath = os.path.join(root, file)
+            sample = filepath.split("/")[-4]
+            if "_contigs" in sample:
+               sample = sample.replace("_contigs_ViWrap_out", "")
+            else:
+               sample = sample.replace("_ViWrap_out", "")
+            contig_dict[sample] = filepath
+
+def get_bam_paths():
+    bam_paths = []
+    samples = []
+    for root, dirs, files in os.walk(parent):
+        for file in files:
+            if file.endswith(".bam"):
+                filepath = os.path.join(root, file)
+                sample = filepath.split("/")[-3]
+                if "_contigs" in sample:
+                   sample = sample.replace("_contigs_ViWrap_out", "")
+                else:
+                   sample = sample.replace("_ViWrap_out", "")
+                bam_paths.append(filepath)
+                samples.append(sample)
+    return bam_paths, samples
+
+def get_contig_list(sample):
+    contig_list = []
+    with open(contig_dict[sample]) as f:
+        lines = f.readlines()
+        for line in lines:
+            if line.startswith(">"):
+              line = line.strip()
+              line = line.replace(">","")
+              contig_list.append(line)
+    return contig_list
+
+def get_sum_of_uniquely_mapped_reads(bam_file, sample, contigs_of_interest):
+  """
+  Gets the sum of all read pairs that uniquely mapped to the contigs of interest.
+
+  Args:
+    bam_file: The path to the BAM file.
+    contigs_of_interest: A list of the contigs of interest.
+
+  Returns:
+    The sum of all read pairs that uniquely mapped to the contigs of interest.
+  """
+
+  # Extract the read pairs that uniquely mapped to the contigs of interest.
+  samtools_view_command = f"samtools view -F 260 -b {bam_file} | samtools sort -o {sample}_unique.bam"
+  samtools_index_command = f"samtools index {sample}_unique.bam -o {sample}_unique.bam.bai"
+  if os.path.isfile(f"{sample}_unique.bam"):
+      if os.path.isfile(f"{sample}_unique.bam.bai") == False:
+        subprocess.call(samtools_index_command, shell=True)
+  else:
+     subprocess.call(samtools_view_command, shell=True)
+     subprocess.call(samtools_index_command, shell=True)
+        
+  # Count the number of read pairs that uniquely mapped to the contigs of interest.
+  samtools_idxstats_command = f"samtools idxstats {sample}_unique.bam"
+  results = subprocess.run(samtools_idxstats_command, shell=True, text=True, capture_output=True).stdout
+
+  # Get the sum of the number of read pairs that uniquely mapped to the contigs of interest.
+  sum_of_reads = 0
+  for line in results.splitlines():
+    contig, length, reads, unmapped = line.split()
+    if contig in contigs_of_interest:
+      sum_of_reads += int(reads)
+
+  return sample, sum_of_reads
+
+def main():
+  results = get_bam_paths()
+  bam_files = results[0]
+  samples = results[1]
+  contigs = []
+  for sample in samples:
+    contigs.append(get_contig_list(sample))
+
+  # Create a pool of 42 processes.
+  pool = multiprocessing.Pool(42)
+     
+  # Map the function to each BAM file in the list.
+  pool_out = pool.starmap(get_sum_of_uniquely_mapped_reads, zip(bam_files, samples, contigs))
+  df_list = []
+  for result in pool_out:
+    sample = result[0]
+    readsum = result[1]
+    print(sample, readsum)
+    df = pd.DataFrame({"Sample" : [sample], "sum_paired_reads_mapped_to_contigs" : [readsum]})
+    df_list.append(df)
+  df = pd.concat(df_list)
+  df.to_csv("Tables/read_mapping_stats_sum.tsv", sep="\t", index=False)
+
+if __name__ == "__main__":
+  main()
+```
+
+### For all input contigs >10 kb (viral and non-viral)
+Requires SAMtools v1.17
+
+```{python3 reads_mapped_all_10kb.py}
+import pandas as pd
+import subprocess
+import os
+
+parent = "ViWrap_out/"
+
+df_list = []
+for root, dirs, files in os.walk(parent):
+    for file in files:
+        if file.endswith(".bam"):
+            filepath = os.path.join(root, file)
+            sample = filepath.split("/")[-3]
+            if "_contigs" in sample:
+               sample = sample.replace("_contigs_ViWrap_out", "")
+            else:
+               sample = sample.replace("_ViWrap_out", "")
+            cmd = f"samtools idxstats {filepath}"
+            results = subprocess.run(cmd, shell=True, text=True, capture_output=True).stdout
+            read_pairs = 0
+            sort_length = True
+            while sort_length == True:
+                for line in results.splitlines():
+                    contig, length, reads, unmapped = line.split()
+                    reads = int(reads)
+                    length = int(length)
+                    if length > 9999: # Set to minimum contig length
+                        read_pairs += reads
+                    else:
+                        sort_length = False
+            df = pd.DataFrame({"Sample" : [sample], "sum_paired_reads_mapped_to_contigs_10000" : [read_pairs]})
+            df_list.append(df)
+df = pd.concat(df_list)
+df.to_csv("Tables/read_mapping_stats_contigs10000_sum.tsv", sep="\t", index=False)
+```
+
+# Read mapping to viral genomes
+For presence/absence analysis
+
+## Copy vMAGs from ViWrap results
+Assumes ViWrap output folder was organized into subfolders for each environment (human gut, freshwater, marine, soil) and extraction method (virome, metagenome). This was not shown above.
+
+```{python3 get-vmags.py}
+import os
+import shutil
+
+parent_path = "ViWrap_out/"
+out_dir = "virus_genomes/individual"
+
+species_counts_dict = dict()
+total_species_info_lines = 0
+vmag_counts = 0
+
+cluster_list_dict = dict()
+for root, dirs, files in os.walk(parent_path): 
+    if "Virus_genomes_files" in root:
+        sample = root.split("/")[-3]
+        sample = sample.replace("_contigs_ViWrap_out", "")
+        for file in files:
+            if file.endswith(".fasta"):
+                fasta = f"{root}/{file}"
+                newfilename = f"{sample}__{file}"
+                if "human_gut" in root:
+                    env = "human_gut"
+                elif "freshwater" in root:
+                    env = "freshwater"
+                elif "marine" in root:
+                    env = "marine"
+                elif "soil" in root:
+                    env = "soil"
+                outpath = f"{out_dir}/{env}/{newfilename}"
+                with open(outpath, "wb") as fdst:
+                    with open(fasta, "rb") as fsrc:
+                        shutil.copyfileobj(fsrc, fdst)
+```
+
+## Combine fastas from the same environment into one, each
+```{bash combine_vmag_fastas.sh}
+#!/bin/bash
+find virus_genomes/individual/human_gut/ -name "*.fasta" -print0 | xargs -0 cat > virus_genomes/human_gut_vmags.fasta
+
+find virus_genomes/individual/freshwater/ -name "*.fasta" -print0 | xargs -0 cat > virus_genomes/freshwater_vmags.fasta
+
+find virus_genomes/individual/marine/ -name "*.fasta" -print0 | xargs -0 cat > virus_genomes/marine_vmags.fasta
+
+find virus_genomes/individual/soil/ -name "*.fasta" -print0 | xargs -0 cat > virus_genomes/soil_vmags.fasta
+```
+
+## Get a list of the paths to all of these VMAGs, to be dereplicated, below
+```{bash list_vmag_fastas.sh}
+#!/bin/bash
+find virus_genomes/individual/human_gut -name "*.fasta" > virus_genomes/individual/human_gut_indiv_redundant_vmags_list.txt
+
+find virus_genomes/individual/freshwater -name "*.fasta" > virus_genomes/individual/freshwater_indiv_redundant_vmags_list.txt
+
+find virus_genomes/individual/marine -name "*.fasta" > virus_genomes/individual/marine_indiv_redundant_vmags_list.txt
+
+find virus_genomes/individual/soil -name "*.fasta" > virus_genomes/individual/soil_indiv_redundant_vmags_list.txt
+```
+
+## Dereplicate vMAGs in each environment into species-level clusters
+Run dRep for each environment. Requires dRep v3.4.3.
+
+```{bash run-drep}
+dRep dereplicate -g virus_genomes/individual/human_gut_indiv_redundant_vmags_list.txt \
+--ignoreGenomeQuality -pa 0.8 -sa 0.95 -nc 0.85 -comW 0 -conW 0 -strW 0 -N50W 0 -sizeW 1 -centW 0 \
+-l 10000 --skip_plots -p 30 dRep_out/human_gut
+
+dRep dereplicate -g virus_genomes/individual/freshwater_indiv_redundant_vmags_list.txt \
+--ignoreGenomeQuality -pa 0.8 -sa 0.95 -nc 0.85 -comW 0 -conW 0 -strW 0 -N50W 0 -sizeW 1 -centW 0 \
+-l 10000 --skip_plots -p 30 dRep_out/freshwater
+
+dRep dereplicate -g virus_genomes/individual/marine_indiv_redundant_vmags_list.txt \
+--ignoreGenomeQuality -pa 0.8 -sa 0.95 -nc 0.85 -comW 0 -conW 0 -strW 0 -N50W 0 -sizeW 1 -centW 0 \
+-l 10000 --skip_plots -p 30 dRep_out/marine
+
+dRep dereplicate -g virus_genomes/individual/soil_indiv_redundant_vmags_list.txt \
+--ignoreGenomeQuality -pa 0.8 -sa 0.95 -nc 0.85 -comW 0 -conW 0 -strW 0 -N50W 0 -sizeW 1 -centW 0 \
+-l 10000 --skip_plots -p 30 dRep_out/soil
+```
+
+## Gather dereplicated vMAGs and combine into one fasta
+```{bash gather-derep-vmags}
+find dRep_out/human_gut/dereplicated_genomes/ -name "*.fasta" -print0 | xargs -0 -I {} cp {} virus_species_fastas/human_gut/
+find virus_species_fastas/human_gut/ -name "*.fasta" -print0 | xargs -0 cat > virus_species_fastas/human_gut_species_vmags.fasta
+
+find dRep_out/freshwater/dereplicated_genomes/ -name "*.fasta" -print0 | xargs -0 -I {} cp {} virus_species_fastas/freshwater/
+find virus_species_fastas/freshwater/ -name "*.fasta" -print0 | xargs -0 cat > virus_species_fastas/freshwater_species_vmags.fasta
+
+find dRep_out/marine/dereplicated_genomes/ -name "*.fasta" -print0 | xargs -0 -I {} cp {} virus_species_fastas/marine/
+find virus_species_fastas/marine/ -name "*.fasta" -print0 | xargs -0 cat > virus_species_fastas/marine_species_vmags.fasta
+
+find dRep_out/soil/dereplicated_genomes/ -name "*.fasta" -print0 | xargs -0 -I {} cp {} virus_species_fastas/soil/
+find virus_species_fastas/soil/ -name "*.fasta" -print0 | xargs -0 cat > virus_species_fastas/soil_species_vmags.fasta
+```
+
+## Build a Bowtie2 mapping index for each combined fasta
+Run for each environment. Requires Bowtie2 v2.5.1.
+
+```{bash build-botwtie2-index}
+bowtie2-build --threads 30 \
+virus_species_fastas/human_gut_species_vmags.fasta \
+map_species_vmags/indexes/human_gut/index
+
+bowtie2-build --threads 30 \
+virus_species_fastas/freshwater_species_vmags.fasta \
+map_species_vmags/indexes/freshwater/index
+
+bowtie2-build --threads 30 \
+virus_species_fastas/marine_species_vmags.fasta \
+map_species_vmags/indexes/marine/index
+
+bowtie2-build --threads 30 \
+virus_species_fastas/soil_species_vmags.fasta \
+map_species_vmags/indexes/soil/index
+```
+
+## Map reads to indices with Bowtie2
+Run for each set of paired reads for each environment. Command for one sample is given as an example. Requires Bowtie2 v2.5.1.
+
+```{bash run-bowtie2}
+bowtie2 --end-to-end --sensitive -p 30 \
+-x map_species_vmags/indexes/soil/index --mm \
+-1 repaired_reads/SRR8487010_R1.fastq.gz -2 repaired_reads/SRR8487010_R2.fastq.gz \
+-S map_species_vmags/mapfiles/soil/SRR8487010.sam
+```
+
+## Convert sam to sorted bam
+Using SAMtools v1.17
+
+```{bash sam-to-sorted-bam}
+ls map_species_vmags/mapfiles/human_gut/*.sam | parallel --jobs 42 'samtools view -bS {} | samtools sort -o map_species_vmags/mapfiles/human_gut/{.}.bam -'
+
+ls map_species_vmags/mapfiles/freshwater/*.sam | parallel --jobs 42 'samtools view -bS {} | samtools sort -o map_species_vmags/mapfiles/freshwater/{.}.bam -'
+
+ls map_species_vmags/mapfiles/marine/*.sam | parallel --jobs 42 'samtools view -bS {} | samtools sort -o map_species_vmags/mapfiles/marine/{.}.bam -'
+
+ls map_species_vmags/mapfiles/soil/*.sam | parallel --jobs 42 'samtools view -bS {} | samtools sort -o map_species_vmags/mapfiles/soil/{.}.bam -'
+```
+
+## Index sorted bam files
+```{bash samtools-index}
+ls *.bam | parallel --jobs 42 'samtools index {}' & # Execute in mapfile dir for each environment
+```
+
+## Filter reads mapping >= 90% identity with CoverM
+Requires CoverM v0.6.1
+
+```{bash coverm-filter}
+# Execute in mapfile dir for each environment
+for BAM in *.bam; do NAME=${BAM%.*}
+  coverm filter -b $BAM -o $NAME.filtered.bam --min-read-percent-identity 90 --threads 10
+done
+
+ls *.filtered.bam | parallel --jobs 42 'samtools index {}' & # indexes filtered bam files, too
+```
+
+
+## Generate covered fraction (genome breadth) tables with CoverM
+Here I am setting the minimum covered fraction to 0 so I can obtain all values even if they are below 0.75. I will filter values < 0.75 later on. Requires CoverM v0.6.1.
+
+```{bash coverm-breadth}
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+for BAM in map_species_vmags/mapfiles/marine/*.filtered.bam; do
+  BASE=$(basename $BAM)
+  NAME=${BASE%%.*}
+  coverm genome -b $BAM -d virus_species_fastas/marine/ \
+  -x fasta -m covered_fraction --min-covered-fraction 0 \
+  -o vmag_coverage/tara/$NAME.covered_fraction.cov -t 10
+done
+```
+
+## Combine genome breadth tables into matrices for each environment
+```{python3 combine_cov_fraction.py}
+import pandas as pd
+import glob
+
+parent = "vmag_coverage/"
+envs = ["human_gut", "freshwater", "marine", "soil"]
+outparent = "Tables/"
+
+for env in envs:
+    path = parent + env
+    df_fractions_list = []
+    for file in glob.glob(path + "/*"):
+        df = pd.read_csv(file, sep = "\t", index_col=0)
+        df.index.name = None
+        df.columns = [df.columns[0].split(".")[0]]
+        if file.endswith(".covered_fraction.cov"):
+            df_fractions_list.append(df)
+    df_fractions = pd.concat(df_fractions_list, axis = 1)
+    df_fractions.to_csv(f"{outparent}covered_fraction_{env}.tsv", sep = "\t")
+```
+
+# Read mapping to viral genes
+For differential abundance analysis.
+
+
+
