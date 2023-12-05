@@ -1,51 +1,54 @@
----
-title: "General bioinformatics workflow"
-author: "James C. Kosmopoulos"
-date: "`r Sys.Date()`"
-output: github_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
+General bioinformatics workflow
+================
+James C. Kosmopoulos
+2023-12-05
 
 # READ ME
-The following is the *general* workflow used to for the virome vs. metagenome analysis. Basic commands and scripts are given that were applied to the four tested environments, separately. Some commands have variable arguments that will need to be updated for the user that is reproducing this analysis.
+
+The following is the *general* workflow used to for the virome
+vs. metagenome analysis. Basic commands and scripts are given that were
+applied to the four tested environments, separately. Some commands have
+variable arguments that will need to be updated for the user that is
+reproducing this analysis.
 
 # Read QC and processing
+
 ## Interleave reads with BBTools reformat.sh
-```{bash run_reformat.sh}
+
+``` bash
 #!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx300g"
 for F in raw_reads/*_1.fastq; do
-	R=${F%_*}_2.fastq
-	BASE=${F##*/}
-	SAMPLE=${BASE%_*}
-	OUT="/raw_reads/$SAMPLE.fastq"
-	reformat.sh -$MEM in=$F in2=$R out=$OUT
-	gzip $OUT
-	rm $F
-	rm $R
+    R=${F%_*}_2.fastq
+    BASE=${F##*/}
+    SAMPLE=${BASE%_*}
+    OUT="/raw_reads/$SAMPLE.fastq"
+    reformat.sh -$MEM in=$F in2=$R out=$OUT
+    gzip $OUT
+    rm $F
+    rm $R
 done
 ```
 
 ## Get read length statistics with BBTools readlen.sh
-````{bash run_readlen.sh}
+
+``` bash
 #!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx300g"
 for F in raw_reads/*.fastq.gz; do
-	echo $F
-	BASE=${F##*/}
-	SAMPLE=${BASE%?????????}
+    echo $F
+    BASE=${F##*/}
+    SAMPLE=${BASE%?????????}
   OUT="/processed_reads/"$SAMPLE"_readlen.txt"
-	readlength.sh -$MEM in=$F out=$OUT overwrite
+    readlength.sh -$MEM in=$F out=$OUT overwrite
 done
 ```
 
 ## Run BBTools rwcfilter2.sh on interleaved reads
-```{bash run_rqcfilter2.sh}
+
+``` bash
 #!/bin/bash
 # Requires BBTools suite v38.86
 DATADIR="RQCFilterData"
@@ -64,38 +67,43 @@ done
 ```
 
 ## Read error correction with BBTools bbcms.sh
-```{bash run_bbcms.sh}
+
+``` bash
 #!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx100g"
 THREADS="16"
 for F in processed_reads/*_filtered.fastq.gz; do
-	BASE=${F##*/}
-	SAMPLE=${BASE%??????????????????}
-	OUT="corrected_reads/"$SAMPLE"_corrected.fastq.gz"
-	bbcms.sh -$MEM t=$THREADS mincount=2 highcountfraction=0.6 in=$F out=$OUT
+    BASE=${F##*/}
+    SAMPLE=${BASE%??????????????????}
+    OUT="corrected_reads/"$SAMPLE"_corrected.fastq.gz"
+    bbcms.sh -$MEM t=$THREADS mincount=2 highcountfraction=0.6 in=$F out=$OUT
 done
 ```
 
 ## Separate paired and unpaired reads with BBTools repair.sh
-```{bash run_repair.sh}
+
+``` bash
 #!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx100g"
 for F in corrected_reads/*_corrected.fastq.gz; do
-	BASE=${F##*/}
-	SAMPLE=${BASE%???????????????????}
-	OUT="repaired_reads/"$SAMPLE"_repaired.fastq.gz"
+    BASE=${F##*/}
+    SAMPLE=${BASE%???????????????????}
+    OUT="repaired_reads/"$SAMPLE"_repaired.fastq.gz"
   OUTS="repaired_reads/"$SAMPLE"_singletons.fastq.gz"
-	repair.sh -$MEM in=$F out=$OUT outs=$OUTS repair
+    repair.sh -$MEM in=$F out=$OUT outs=$OUTS repair
 done
 ```
 
 # Assemble error-corrected reads with SPAdes
-## Run SPAdes
-Run for every set of error-corrected, interleaved, paired and unpaired reads. Command for one sample is given as an example.
 
-```{bash spades.py}
+## Run SPAdes
+
+Run for every set of error-corrected, interleaved, paired and unpaired
+reads. Command for one sample is given as an example.
+
+``` bash
 # Requires metaSPAdes v3.13.0
 spades.py -m 512 --tmp-dir spades_tmp -o spades_assemblies/SRR8487010_spades_out \
 --only-assembler -k 33,55,77,99,127 --meta -t 30 \
@@ -103,7 +111,8 @@ spades.py -m 512 --tmp-dir spades_tmp -o spades_assemblies/SRR8487010_spades_out
 ```
 
 ## Move assembled contigs into a new folder
-```{bash move_contigs.sh}
+
+``` bash
 #!/bin/bash
 SRC_DIR="spades_assemblies"
 DEST_DIR="assembly_fastas"
@@ -117,7 +126,8 @@ done
 ```
 
 ## Get assembly reports from metaQUAST
-```{bash run-metaquast}
+
+``` bash
 # Requires metaQUAST v5.2.0 
 metaquast assembly_fastas/*_contigs.fna \
 -m 2000 --contig-thresholds 0,2000,5000,10000,25000,50000 \
@@ -125,8 +135,10 @@ metaquast assembly_fastas/*_contigs.fna \
 ```
 
 # Run ViWrap
+
 ## Separate read mates for ViWrap
-```{bash separate_mates.sh}
+
+``` bash
 #!/bin/bash
 # Requires BBTools suite v38.86
 MEM="Xmx100g"
@@ -152,9 +164,11 @@ wait
 ```
 
 ## Execute ViWrap
-Run for every assembly along with its corresponding sets of paired reads. Command for one sample is given as an example.
 
-```{bash run-viwrap}
+Run for every assembly along with its corresponding sets of paired
+reads. Command for one sample is given as an example.
+
+``` bash
 # Requires ViWrap v1.2.1
 ViWrap run --input_metagenome assembly_fastas/SRR8487010_contigs.fna \
 --input_reads repaired_reads/SRR8487010_R1.fastq.gz,repaired_reads/SRR8487010_R2.fastq.gz \
@@ -166,13 +180,16 @@ ViWrap run --input_metagenome assembly_fastas/SRR8487010_contigs.fna \
 ```
 
 ## Get virus stats from ViWrap
+
 ### First need to get a path of all summary stat files generated by ViWrap
-```{bash get-virus-stats}
+
+``` bash
 find ViWrap_out -name "virus_statistics.txt" > viwrap_virus_stats_paths.txt
 ```
 
 ### Now parse and combine results using python
-```{python3 merge_virus_stats.py}
+
+``` python3
 import os
 import pandas as pd
 
@@ -207,9 +224,11 @@ data_frame_virstats.to_csv("Tables/virus_stats.tsv", sep="\t")
 ```
 
 ## Get additional virus-level info from ViWrap
-Such as predicted lytic state (will combine "scaffold" and "virus" distinctions), CheckV quality, and taxonomy
 
-```{python3 virus_summary_info.py}
+Such as predicted lytic state (will combine “scaffold” and “virus”
+distinctions), CheckV quality, and taxonomy
+
+``` python3
 import os
 import pandas as pd
 
@@ -251,12 +270,14 @@ df_tax_concat.to_csv(f"{outdir_tax}virus_tax_classification_results_combined.tsv
 ```
 
 ## Get read recruitment from ViWrap
+
 ### For only viral contigs identified by VIBRANT
+
 Also assuming input length requirement for ViWrap/VIBRANT was 10 kb.
 
 Requires SAMtools v1.17
 
-```{python3 reads_mapped_viral.py}
+``` python3
 import multiprocessing
 import subprocess
 import os
@@ -365,10 +386,11 @@ if __name__ == "__main__":
   main()
 ```
 
-### For all input contigs >10 kb (viral and non-viral)
+### For all input contigs \>10 kb (viral and non-viral)
+
 Requires SAMtools v1.17
 
-```{python3 reads_mapped_all_10kb.py}
+``` python3
 import pandas as pd
 import subprocess
 import os
@@ -405,12 +427,16 @@ df.to_csv("Tables/read_mapping_stats_contigs10000_sum.tsv", sep="\t", index=Fals
 ```
 
 # Read mapping to viral genomes
+
 For presence/absence analysis
 
 ## Copy vMAGs from ViWrap results
-Assumes ViWrap output folder was organized into subfolders for each environment (human gut, freshwater, marine, soil) and extraction method (virome, metagenome). This was not shown above.
 
-```{python3 get-vmags.py}
+Assumes ViWrap output folder was organized into subfolders for each
+environment (human gut, freshwater, marine, soil) and extraction method
+(virome, metagenome). This was not shown above.
+
+``` python3
 import os
 import shutil
 
@@ -445,7 +471,8 @@ for root, dirs, files in os.walk(parent_path):
 ```
 
 ## Combine fastas from the same environment into one, each
-```{bash combine_vmag_fastas.sh}
+
+``` bash
 #!/bin/bash
 find virus_genomes/individual/human_gut/ -name "*.fasta" -print0 | xargs -0 cat > virus_genomes/human_gut_vmags.fasta
 
@@ -457,7 +484,8 @@ find virus_genomes/individual/soil/ -name "*.fasta" -print0 | xargs -0 cat > vir
 ```
 
 ## Get a list of the paths to all of these VMAGs, to be dereplicated, below
-```{bash list_vmag_fastas.sh}
+
+``` bash
 #!/bin/bash
 find virus_genomes/individual/human_gut -name "*.fasta" > virus_genomes/individual/human_gut_indiv_redundant_vmags_list.txt
 
@@ -469,9 +497,10 @@ find virus_genomes/individual/soil -name "*.fasta" > virus_genomes/individual/so
 ```
 
 ## Dereplicate vMAGs in each environment into species-level clusters
+
 Run dRep for each environment. Requires dRep v3.4.3.
 
-```{bash run-drep}
+``` bash
 dRep dereplicate -g virus_genomes/individual/human_gut_indiv_redundant_vmags_list.txt \
 --ignoreGenomeQuality -pa 0.8 -sa 0.95 -nc 0.85 -comW 0 -conW 0 -strW 0 -N50W 0 -sizeW 1 -centW 0 \
 -l 10000 --skip_plots -p 30 dRep_out/human_gut
@@ -490,7 +519,8 @@ dRep dereplicate -g virus_genomes/individual/soil_indiv_redundant_vmags_list.txt
 ```
 
 ## Gather dereplicated vMAGs and combine into one fasta
-```{bash gather-derep-vmags}
+
+``` bash
 find dRep_out/human_gut/dereplicated_genomes/ -name "*.fasta" -print0 | xargs -0 -I {} cp {} virus_species_fastas/human_gut/
 find virus_species_fastas/human_gut/ -name "*.fasta" -print0 | xargs -0 cat > virus_species_fastas/human_gut_species_vmags.fasta
 
@@ -505,9 +535,10 @@ find virus_species_fastas/soil/ -name "*.fasta" -print0 | xargs -0 cat > virus_s
 ```
 
 ## Build a Bowtie2 mapping index for each combined fasta
+
 Run for each environment. Requires Bowtie2 v2.5.1.
 
-```{bash build-botwtie2-index}
+``` bash
 bowtie2-build --threads 30 \
 virus_species_fastas/human_gut_species_vmags.fasta \
 map_species_vmags/indexes/human_gut/index
@@ -526,9 +557,11 @@ map_species_vmags/indexes/soil/index
 ```
 
 ## Map reads to indices with Bowtie2
-Run for each set of paired reads for each environment. Command for one sample is given as an example. Requires Bowtie2 v2.5.1.
 
-```{bash run-bowtie2}
+Run for each set of paired reads for each environment. Command for one
+sample is given as an example. Requires Bowtie2 v2.5.1.
+
+``` bash
 bowtie2 --end-to-end --sensitive -p 30 \
 -x map_species_vmags/indexes/soil/index --mm \
 -1 repaired_reads/SRR8487010_R1.fastq.gz -2 repaired_reads/SRR8487010_R2.fastq.gz \
@@ -536,9 +569,10 @@ bowtie2 --end-to-end --sensitive -p 30 \
 ```
 
 ## Convert sam to sorted bam
+
 Using SAMtools v1.17
 
-```{bash sam-to-sorted-bam}
+``` bash
 ls map_species_vmags/mapfiles/human_gut/*.sam | parallel --jobs 42 'samtools view -bS {} | samtools sort -o map_species_vmags/mapfiles/human_gut/{.}.bam -'
 
 ls map_species_vmags/mapfiles/freshwater/*.sam | parallel --jobs 42 'samtools view -bS {} | samtools sort -o map_species_vmags/mapfiles/freshwater/{.}.bam -'
@@ -549,14 +583,16 @@ ls map_species_vmags/mapfiles/soil/*.sam | parallel --jobs 42 'samtools view -bS
 ```
 
 ## Index sorted bam files
-```{bash samtools-index}
+
+``` bash
 ls *.bam | parallel --jobs 42 'samtools index {}' & # Execute in mapfile dir for each environment
 ```
 
-## Filter reads mapping >= 90% identity with CoverM
+## Filter reads mapping \>= 90% identity with CoverM
+
 Requires CoverM v0.6.1
 
-```{bash coverm-filter}
+``` bash
 # Execute in mapfile dir for each environment
 for BAM in *.bam; do NAME=${BAM%.*}
   coverm filter -b $BAM -o $NAME.filtered.bam --min-read-percent-identity 90 --threads 10
@@ -565,11 +601,13 @@ done
 ls *.filtered.bam | parallel --jobs 42 'samtools index {}' & # indexes filtered bam files, too
 ```
 
-
 ## Generate covered fraction (genome breadth) tables with CoverM
-Here I am setting the minimum covered fraction to 0 so I can obtain all values even if they are below 0.75. I will filter values < 0.75 later on. Requires CoverM v0.6.1.
 
-```{bash coverm-breadth}
+Here I am setting the minimum covered fraction to 0 so I can obtain all
+values even if they are below 0.75. I will filter values \< 0.75 later
+on. Requires CoverM v0.6.1.
+
+``` bash
 # One example given for one environment
 # Replace "marine" with the correct environment when running for the others
 for BAM in map_species_vmags/mapfiles/marine/*.filtered.bam; do
@@ -582,7 +620,8 @@ done
 ```
 
 ## Combine genome breadth tables into matrices for each environment
-```{python3 combine_cov_fraction.py}
+
+``` python3
 import pandas as pd
 import glob
 
@@ -604,7 +643,5 @@ for env in envs:
 ```
 
 # Read mapping to viral genes
+
 For differential abundance analysis.
-
-
-
