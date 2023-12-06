@@ -41,11 +41,12 @@ tableS4 <- tableS4[c(1, ncol(tableS4), 2:(ncol(tableS4)-1))] # move sample colum
 tableS4 <- merge(tableS4, data_reform[c("Sample", "Environment")], by.x = "sample", by.y = "Sample")
 col_order <- c("Genome", "sample", "Environment", setdiff(names(tableS4), c("Genome", "sample", "Environment")))
 tableS4 <- tableS4[col_order]
+colnames(tableS4) <- c("genome", "sample", "environment",   "contig",   "gene", "start",    "stop", "start relative",   "stop relative",    "frame",    "phrog",    "pharokka gene prediction method",  "phrog annot    phrog category")
 write_csv(tableS4, file="../Tables/TableS4.csv")
 head(tableS4)
 ```
 
-    ##                          Genome    sample Environment
+    ##                          genome    sample environment
     ## 1 Ga0485172__vRhyme_unbinned_38 Ga0485172  freshwater
     ## 2 Ga0485172__vRhyme_unbinned_38 Ga0485172  freshwater
     ## 3 Ga0485172__vRhyme_unbinned_38 Ga0485172  freshwater
@@ -59,14 +60,21 @@ head(tableS4)
     ## 4 vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement VXJRLFAH_CDS_0004
     ## 5 vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement VXJRLFAH_CDS_0005
     ## 6 vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement VXJRLFAH_CDS_0006
-    ##   start stop start.relative stop.relative frame    phrog    Method
-    ## 1     1 1653           2789          4441     +      156 PHANOTATE
-    ## 2  1650 2012           4438          4800     +      858 PHANOTATE
-    ## 3  2016 2318           4804          5106     + No_PHROG PHANOTATE
-    ## 4  2318 2551           5106          5339     + No_PHROG PHANOTATE
-    ## 5  2563 4527           5351          7315     +    22896 PHANOTATE
-    ## 6  4524 4667           7312          7455     + No_PHROG PHANOTATE
-    ##                                            annot                 category
+    ##   start stop start relative stop relative frame    phrog
+    ## 1     1 1653           2789          4441     +      156
+    ## 2  1650 2012           4438          4800     +      858
+    ## 3  2016 2318           4804          5106     + No_PHROG
+    ## 4  2318 2551           5106          5339     + No_PHROG
+    ## 5  2563 4527           5351          7315     +    22896
+    ## 6  4524 4667           7312          7455     + No_PHROG
+    ##   pharokka gene prediction method
+    ## 1                       PHANOTATE
+    ## 2                       PHANOTATE
+    ## 3                       PHANOTATE
+    ## 4                       PHANOTATE
+    ## 5                       PHANOTATE
+    ## 6                       PHANOTATE
+    ##                      phrog annot\tphrog category                       NA
     ## 1                                 portal protein       head and packaging
     ## 2 starvation-inducible transcriptional regulator transcription regulation
     ## 3                           hypothetical protein         unknown function
@@ -88,25 +96,26 @@ tableS5$Filtered.read.pairs.in.sample <- ifelse(tableS5$Read.sample == "Ga048518
                              
 tableS5$Depth.per.100M.reads <- depth_per_base$Depth.per.100M.reads
 tableS5$Depth.normalized <- depth_per_base$Depth.normalized
+colnames(tableS5) <- c("Contig",    "Position", "Depth",    "Relative position",    "Read sample",  "Read sample method",   "Genome method",    "Genome",   "Filtered read pairs in sample",    "Depth per 100M reads", "Depth normalized")
 write_csv(tableS5, file="../Tables/TableS5.csv")
 head(tableS5)
 ```
 
-    ##                                  Contig Position Depth Relative.position
+    ##                                  Contig Position Depth Relative position
     ## 1 vRhyme_unbinned_38__Ga0485172_0000163        3     3              2791
     ## 2 vRhyme_unbinned_38__Ga0485172_0000163        4     3              2792
     ## 3 vRhyme_unbinned_38__Ga0485172_0000163        5     3              2793
     ## 4 vRhyme_unbinned_38__Ga0485172_0000163        6     3              2794
     ## 5 vRhyme_unbinned_38__Ga0485172_0000163        7     3              2795
     ## 6 vRhyme_unbinned_38__Ga0485172_0000163        8     4              2796
-    ##   Read.sample Read.sample.method Genome.method                        Genome
+    ##   Read sample Read sample method Genome method                        Genome
     ## 1   Ga0485184           Mixed MG      Mixed MG Ga0485172__vRhyme_unbinned_38
     ## 2   Ga0485184           Mixed MG      Mixed MG Ga0485172__vRhyme_unbinned_38
     ## 3   Ga0485184           Mixed MG      Mixed MG Ga0485172__vRhyme_unbinned_38
     ## 4   Ga0485184           Mixed MG      Mixed MG Ga0485172__vRhyme_unbinned_38
     ## 5   Ga0485184           Mixed MG      Mixed MG Ga0485172__vRhyme_unbinned_38
     ## 6   Ga0485184           Mixed MG      Mixed MG Ga0485172__vRhyme_unbinned_38
-    ##   Filtered.read.pairs.in.sample Depth.per.100M.reads Depth.normalized
+    ##   Filtered read pairs in sample Depth per 100M reads Depth normalized
     ## 1                     277298408             1.081867       0.03417388
     ## 2                     277298408             1.081867       0.03417388
     ## 3                     277298408             1.081867       0.03417388

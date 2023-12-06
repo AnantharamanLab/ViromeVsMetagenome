@@ -36,6 +36,7 @@ tableS4 <- tableS4[c(1, ncol(tableS4), 2:(ncol(tableS4)-1))] # move sample colum
 tableS4 <- merge(tableS4, data_reform[c("Sample", "Environment")], by.x = "sample", by.y = "Sample")
 col_order <- c("Genome", "sample", "Environment", setdiff(names(tableS4), c("Genome", "sample", "Environment")))
 tableS4 <- tableS4[col_order]
+colnames(tableS4) <- c("genome", "sample", "environment",	"contig",	"gene",	"start",	"stop",	"start relative",	"stop relative",	"frame",	"phrog",	"pharokka gene prediction method",	"phrog annot	phrog category")
 write_csv(tableS4, file="../Tables/TableS4.csv")
 head(tableS4)
 ```
@@ -53,6 +54,7 @@ tableS5$Filtered.read.pairs.in.sample <- ifelse(tableS5$Read.sample == "Ga048518
                              
 tableS5$Depth.per.100M.reads <- depth_per_base$Depth.per.100M.reads
 tableS5$Depth.normalized <- depth_per_base$Depth.normalized
+colnames(tableS5) <- c("Contig",	"Position",	"Depth",	"Relative position",	"Read sample",	"Read sample method",	"Genome method",	"Genome",	"Filtered read pairs in sample",	"Depth per 100M reads",	"Depth normalized")
 write_csv(tableS5, file="../Tables/TableS5.csv")
 head(tableS5)
 ```

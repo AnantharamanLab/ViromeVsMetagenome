@@ -1,4 +1,4 @@
-Genome,sample,Environment,contig,gene,start,stop,start.relative,stop.relative,frame,phrog,Method,annot,category
+genome,sample,environment,contig,gene,start,stop,start relative,stop relative,frame,phrog,pharokka gene prediction method,phrog annot	phrog category,
 Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0001,1,1653,2789,4441,+,156,PHANOTATE,portal protein,head and packaging
 Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0002,1650,2012,4438,4800,+,858,PHANOTATE,starvation-inducible transcriptional regulator,transcription regulation
 Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0003,2016,2318,4804,5106,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
