@@ -1,0 +1,382 @@
+---
+title: "Gather and Organize Data"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Load packages
+
+```{r load-packages}
+library(tidyverse); packageVersion("tidyverse")
+library(reshape2); packageVersion("reshape2")
+```
+
+# Load data
+```{r load-data, echo=TRUE}
+raw_data <- read.csv("../Tables/stats_and_metadata.csv", header = TRUE)
+```
+
+# Reformat dataframe and make desired categories
+```{r xform-data}
+raw_data$viral_contig_percent_10000 <- (raw_data$viral.scaffold.no / raw_data$X..contigs.....10000.bp.) * 100
+raw_data$viral_reads_percent <- (raw_data$sum_paired_reads_mapped_to_viral_contigs / raw_data$Reads_paired_reads) * 100
+raw_data$contig_10000_reads_percent <- (raw_data$sum_paired_reads_mapped_to_contigs_10000 / raw_data$Reads_paired_reads) * 100
+raw_data$Reads_paired_reads_million <- raw_data$Reads_paired_reads / 1e6
+raw_data$lytic_state_na_no <- raw_data$virus.no - (raw_data$int_prophage_no + raw_data$lysogen_virus_no + raw_data$lysogen_scaff_no + raw_data$lytic_virus_no+ raw_data$lytic_scaff_no) # Remaining lytic state unknown
+
+raw_data$lytic_no <- raw_data$lytic_scaff_no + raw_data$lytic_virus_no # Combine lytic virus and scaffold into one lytic category
+raw_data$lysogen_no <- raw_data$lysogen_scaff_no + raw_data$lysogen_virus_no  # Combine lysogenic virus and scaffold into one lysogenic category
+
+data_reform <- raw_data %>% 
+  mutate(env2 = case_when(Environment =="human_gut"~"Human gut",
+                          Environment =="freshwater"~"Freshwater",
+                          Environment =="marine"~"Marine",
+                          Environment =="soil"~"Soil"
+                      )) %>%
+  mutate(method2 = case_when(Method == "metagenome"~"Mixed MG",
+                             Method == "virome"~"Virome",
+                            ))
+
+data_reform$lytic_scaff_no_norm_VMAGs <- data_reform$lytic_scaff_no / data_reform$virus.no
+data_reform$lytic_virus_no_norm_VMAGs <- data_reform$lytic_virus_no / data_reform$virus.no
+data_reform$lysogen_scaff_no_norm_VMAGs <- data_reform$lysogen_scaff_no / data_reform$virus.no
+data_reform$lysogen_virus_no_norm_VMAGs <- data_reform$lysogen_virus_no / data_reform$virus.no
+data_reform$int_prophage_no_norm_VMAGs <- data_reform$int_prophage_no / data_reform$virus.no
+data_reform$lytic_state_na_no_norm_VMAGs <- data_reform$lytic_state_na_no / data_reform$virus.no
+data_reform$checkv_low_norm_VMAGs <- data_reform$checkv_low / data_reform$virus.no
+data_reform$checkv_med_norm_VMAGs <- data_reform$checkv_med / data_reform$virus.no
+data_reform$checkv_high_norm_VMAGs <- data_reform$checkv_high / data_reform$virus.no
+data_reform$checkv_na_norm_VMAGs <- data_reform$checkv_na / data_reform$virus.no
+data_reform$lytic_no_norm_vmags <- (data_reform$lytic_scaff_no + data_reform$lytic_virus_no) / data_reform$virus.no
+data_reform$lytic_no_norm_reads <- (data_reform$lytic_scaff_no + data_reform$lytic_virus_no) / data_reform$X100M_paired_reads
+data_reform$lysogen_no_norm_vmags <- (data_reform$lysogen_scaff_no + data_reform$lysogen_virus_no) / data_reform$virus.no
+data_reform$lysogen_no_norm_reads <- (data_reform$lysogen_scaff_no + data_reform$lysogen_virus_no) / data_reform$X100M_paired_reads
+data_reform$int_prophage_no_norm_vmags <- data_reform$int_prophage_no / data_reform$virus.no
+data_reform$int_prophage_no_norm_reads <- data_reform$int_prophage_no / data_reform$X100M_paired_reads
+data_reform$lytic_state_na_no_norm_vmags <- data_reform$lytic_state_na_no / data_reform$virus.no
+data_reform$lytic_state_na_no_norm_reads <- data_reform$lytic_state_na_no / data_reform$X100M_paired_reads
+
+data_reform[is.na(data_reform)] <- 0 # Convert NA values to 0
+data_reform$method2 <- factor(data_reform$method2, levels=c("Mixed MG", "Virome"))
+
+head(data_reform)
+saveRDS(data_reform, file = "../Data/stats_and_metadata.RDS")
+```
+
+## Contig stats
+```{r contig-stats}
+contig_stats <- data_reform[, c("Sample", "sample_source", "Environment", "Method", "env2", "method2")]
+contig_stats <- merge(contig_stats, data_reform[,c(1,16:35)], by="Sample")
+contig_stats_melt <- melt(contig_stats[, c("Sample", "sample_source", "Environment", "env2", "Method", "method2", "N50", "N90", "L50", "L90")], id = c("Sample", "sample_source", "Environment", "env2", "Method", "method2"))
+contig_stats_melt$method2 <- factor(contig_stats_melt$method2, levels=c("Mixed MG", "Virome"))
+contig_stats_melt$Method <- factor(contig_stats_melt$Method, levels=c("metagenome", "virome"))
+
+saveRDS(contig_stats_melt, file = "../Data/contig_stats_melt.RDS")
+head(contig_stats_melt)
+```
+
+## Virus info
+```{r virus-info}
+vir_info <- read.csv("../Tables/virus_summary_info_combined.csv", header=TRUE)
+# Combine "scaffold" and "virus" distinctions
+vir_info <- vir_info %>% mutate(lytic_state = case_when(lytic_state == "lytic_scaffold" ~ "Lytic",
+                                                        lytic_state == "lytic_virus" ~ "Lytic",
+                                                        lytic_state == "lysogenic_scaffold" ~ "Lysogenic",
+                                                        lytic_state == "lysogenic_virus" ~ "Lysogenic",
+                                                        lytic_state == "integrated_prophage" ~ "Int. prophage"))
+vir_info$sample <- gsub("_contigs", "", vir_info$sample)
+vir_info$genome <- gsub("_contigs", "", vir_info$genome)
+saveRDS(vir_info, file= "../Data/virus_summary_info_combined.RDS")
+head(vir_info)
+```
+
+## Virus taxonomy
+```{r virus-tax}
+vir_tax <- read.csv("../Tables/virus_tax_classification_results_combined.csv", header=TRUE)
+vir_tax <- separate(data = vir_tax, col = taxonomy, into = c("realm", "kingdom", "phylum", "class", "order", "family", "genus", "species"), sep = "\\;")
+vir_tax$sample <- gsub("_contigs", "", vir_tax$sample)
+vir_tax$genome <- gsub("_contigs", "", vir_tax$genome)
+# Remove lingering rank labels
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "r__", "")))
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "k__", "")))
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "p__", "")))
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "c__", "")))
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "o__", "")))
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "f__", "")))
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "g__", "")))
+vir_tax <- vir_tax %>% mutate_all(funs(str_replace(., "s__", "")))
+# Add metadata columns
+cols <- data_reform[, c("Sample", "sample_source", "Environment", "Method", "env2", "method2")]
+names(cols)[names(cols) == 'Sample'] <- 'sample'
+vir_tax <- merge(vir_tax, cols, by="sample", all.x = TRUE)
+saveRDS(vir_tax, file= "../Data/virus_tax_classification_results_combined.RDS")
+head(vir_tax)
+```
+
+## Genome breadths (covered fractions)
+```{r genome-breadth}
+breadth.gut <- read.csv("../Tables/covered_fraction_human_gut.csv", header=TRUE, row.names = 1)
+breadth.fw <- read.csv("../Tables/covered_fraction_freshwater.csv", header=TRUE, row.names = 1)
+breadth.mar <- read.csv("../Tables/covered_fraction_marine.csv", header=TRUE, row.names = 1)
+breadth.soil <- read.csv("../Tables/covered_fraction_soil.csv", header=TRUE, row.names = 1)
+```
+
+### Fix rownames, add an extra "_" between sample ID and bin name
+```{r fix-genome-names-for-breadths}
+fix_rownames <- function(x) {
+  gsub("_vRhyme", "__vRhyme", x)
+}
+
+rownames(breadth.gut) <- fix_rownames(rownames(breadth.gut))
+head(breadth.gut)
+#rownames(breadth.fw) <- fix_rownames(rownames(breadth.fw)) # Don't need this for these data
+head(breadth.fw)
+# rownames(breadth.mar) <- fix_rownames(rownames(breadth.mar)) # Don't need this for these data
+head(breadth.mar)
+rownames(breadth.soil) <- fix_rownames(rownames(breadth.soil))
+head(breadth.soil)
+```
+
+### Split into viromes and metagenomes
+```{r split-breadths}
+# Human gut
+breadth.gut.vir <- breadth.gut[colnames(breadth.gut) %in% subset(data_reform, env2=="Human gut" & method2 == "Virome")$Sample]
+breadth.gut.mg <- breadth.gut[colnames(breadth.gut) %in% subset(data_reform, env2=="Human gut" & method2 == "Mixed MG")$Sample]
+
+# Freshwater
+breadth.fw.vir <- breadth.fw[colnames(breadth.fw) %in% subset(data_reform, env2=="Freshwater" & method2 == "Virome")$Sample]
+breadth.fw.mg <- breadth.fw[colnames(breadth.fw) %in% subset(data_reform, env2=="Freshwater" & method2 == "Mixed MG")$Sample]
+
+# Marine
+breadth.mar.vir <- breadth.mar[colnames(breadth.mar) %in% subset(data_reform, env2=="Marine" & method2 == "Virome")$Sample]
+breadth.mar.mg <- breadth.mar[colnames(breadth.mar) %in% subset(data_reform, env2=="Marine" & method2 == "Mixed MG")$Sample]
+
+# Soil
+breadth.soil.vir <- breadth.soil[colnames(breadth.soil) %in% subset(data_reform, env2=="Soil" & method2 == "Virome")$Sample]
+breadth.soil.mg <- breadth.soil[colnames(breadth.soil) %in% subset(data_reform, env2=="Soil" & method2 == "Mixed MG")$Sample]
+```
+
+### Get names of present VMAGs in viromes and metagenomes, and both
+```{r get-present-vmags}
+# Consider values >= 0.75 to be "present"
+## Each environment, separate
+present.gut <- rownames(breadth.gut)[apply(breadth.gut, 1, function(row) any(row >= 0.75))]
+saveRDS(present.gut, file="../Data/present_gut.RDS")
+present.gut.vir <- rownames(breadth.gut.vir)[apply(breadth.gut.vir, 1, function(row) any(row >= 0.75))]
+saveRDS(present.gut.vir, file="../Data/present_gut_vir.RDS")
+present.gut.mg <- rownames(breadth.gut.mg)[apply(breadth.gut.mg, 1, function(row) any(row >= 0.75))]
+saveRDS(present.gut.mg, file="../Data/present_gut_mg.RDS")
+present.fw <- rownames(breadth.fw)[apply(breadth.fw, 1, function(row) any(row >= 0.75))]
+saveRDS(present.fw, file="../Data/present_fw.RDS")
+present.fw.vir <- rownames(breadth.fw.vir)[apply(breadth.fw.vir, 1, function(row) any(row >= 0.75))]
+saveRDS(present.fw.vir, file="../Data/present_fw_vir.RDS")
+present.fw.mg <- rownames(breadth.fw.mg)[apply(breadth.fw.mg, 1, function(row) any(row >= 0.75))]
+saveRDS(present.fw.mg, file="../Data/present_fw_mg.RDS")
+present.mar <- rownames(breadth.mar)[apply(breadth.mar, 1, function(row) any(row >= 0.75))]
+saveRDS(present.mar, file="../Data/present_mar.RDS")
+present.mar.vir <- rownames(breadth.mar.vir)[apply(breadth.mar.vir, 1, function(row) any(row >= 0.75))]
+saveRDS(present.mar.vir, file="../Data/present_mar_vir.RDS")
+present.mar.mg <- rownames(breadth.mar.mg)[apply(breadth.mar.mg, 1, function(row) any(row >= 0.75))]
+saveRDS(present.mar.mg, file="../Data/present_mar_mg.RDS")
+present.soil <- rownames(breadth.soil)[apply(breadth.soil, 1, function(row) any(row >= 0.75))]
+saveRDS(present.soil, file="../Data/present_soil.RDS")
+present.soil.vir <- rownames(breadth.soil.vir)[apply(breadth.soil.vir, 1, function(row) any(row >= 0.75))]
+saveRDS(present.soil.vir, file="../Data/present_soil_vir.RDS")
+present.soil.mg <- rownames(breadth.soil.mg)[apply(breadth.soil.mg, 1, function(row) any(row >= 0.75))]
+saveRDS(present.soil.mg, file="../Data/present_soil_mg.RDS")
+
+## All environments, combined
+present.all <- c(present.gut, present.fw, present.mar, present.soil)
+saveRDS(present.all, file="../Data/present_all.RDS")
+present.all.vir <- c(present.gut.vir, present.fw.vir, present.mar.vir, present.soil.vir)
+saveRDS(present.all.vir, file="../Data/present_all_vir.RDS")
+present.all.mg <- c(present.gut.mg, present.fw.mg, present.mar.mg, present.soil.mg)
+saveRDS(present.all.mg, file="../Data/present_all_mg.RDS")
+```
+
+## CoverM trimmed means
+```{r load-tmeans}
+tmeans.gut <- read.csv("../Tables/trimmed_means_human_gut.csv", header=TRUE, row.names = 1)
+head(tmeans.gut)
+tmeans.fw <- read.csv("../Tables/trimmed_means_freshwater.csv", header=TRUE, row.names = 1)
+head(tmeans.fw)
+tmeans.mar <- read.csv("../Tables/trimmed_means_marine.csv", header=TRUE, row.names = 1)
+head(tmeans.mar)
+tmeans.soil <- read.csv("../Tables/trimmed_means_soil.csv", header=TRUE, row.names = 1)
+head(tmeans.soil)
+```
+
+## Subset trimmed means tables for each method
+```{r subset-tmeans}
+tmeans.gut.vir <- tmeans.gut[colnames(tmeans.gut) %in% subset(data_reform, env2=="Human gut" & method2 == "Virome")$Sample]
+saveRDS(tmeans.gut.vir, file="../Data/tmeans_gut_vir.RDS")
+tmeans.gut.mg <- tmeans.gut[colnames(tmeans.gut) %in% subset(data_reform, env2=="Human gut" & method2 == "Mixed MG")$Sample]
+saveRDS(tmeans.gut.mg, file="../Data/tmeans_gut_mg.RDS")
+tmeans.fw.vir <- tmeans.fw[colnames(tmeans.fw) %in% subset(data_reform, env2=="Freshwater" & method2 == "Virome")$Sample]
+saveRDS(tmeans.fw.vir, file="../Data/tmeans_fw_vir.RDS")
+tmeans.fw.mg <- tmeans.fw[colnames(tmeans.fw) %in% subset(data_reform, env2=="Freshwater" & method2 == "Mixed MG")$Sample]
+saveRDS(tmeans.fw.mg, file="../Data/tmeans_fw_mg.RDS")
+tmeans.mar.vir <- tmeans.mar[colnames(tmeans.mar) %in% subset(data_reform, env2=="Marine" & method2 == "Virome")$Sample]
+saveRDS(tmeans.mar.vir, file="../Data/tmeans_mar_vir.RDS")
+tmeans.mar.mg <- tmeans.mar[colnames(tmeans.mar) %in% subset(data_reform, env2=="Marine" & method2 == "Mixed MG")$Sample]
+saveRDS(tmeans.mar.mg, file="../Data/tmeans_mar_mg.RDS")
+tmeans.soil.vir <- tmeans.soil[colnames(tmeans.soil) %in% subset(data_reform, env2=="Soil" & method2 == "Virome")$Sample]
+saveRDS(tmeans.soil.vir, file="../Data/tmeans_soil_vir.RDS")
+tmeans.soil.mg <- tmeans.soil[colnames(tmeans.soil) %in% subset(data_reform, env2=="Soil" & method2 == "Mixed MG")$Sample]
+saveRDS(tmeans.soil.mg, file="../Data/tmeans_soil_mg.RDS")
+```
+
+# Depth per position for highlighted vMAGs
+## Load and format coverage tables
+```{r load-coverage-tables}
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov <- read.csv("../Tables/Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov", header=FALSE, sep="\t")
+colnames(Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov) <- c("Contig", "Position", "Depth")
+
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov <- read.csv("../Tables/Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov", header=FALSE, sep="\t")
+colnames(Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov) <- c("Contig", "Position", "Depth")
+
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov <- read.csv("../Tables/Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov", header=FALSE, sep="\t")
+colnames(Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov) <- c("Contig", "Position", "Depth")
+
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov <- read.csv("../Tables/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov", header=FALSE, sep="\t")
+colnames(Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov) <- c("Contig", "Position", "Depth")
+```
+
+## Add a relative position column to account for the incompletness in the Ga0485172__vRhyme_unbinned_38 assembly
+### Define a function to modify the Ga0485172__vRhyme_unbinned_38 dataframes
+```{r offset-genome-position-function}
+# Define the offset for assembly B
+offset_B <- 2789
+
+# Define the range that is missing in assembly B
+missing_range_start <- 6822 # Reversed
+missing_range_end <- 6692 # Reversed
+additional_missing_start <- 3905
+additional_missing_end <- 3908
+
+# Function to calculate relative position for assembly B
+calculate_relative_position <- function(position_B) {
+  if (position_B < missing_range_start) {
+    return(position_B + offset_B - 1)
+  } else if (position_B >= missing_range_end) {
+    return(position_B + offset_B - (missing_range_end - missing_range_start + 1))
+  } else {
+    return(NA)  # Positions in the missing range are not valid in assembly B
+  }
+}
+
+calculate_relative_position_2 <- function(position_A) {
+  if (position_A >= additional_missing_end) {
+    return(position_A - (additional_missing_end - additional_missing_start + 1))
+  } else {
+    return(position_A)  # Positions in the missing range are not valid in assembly A
+  }
+}
+```
+
+### Execute the fucntion for Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov and Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov
+```{r add-relative-positions-to-metagenome}
+# Apply the function to the position column in assembly B dataframe
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Relative.position <- sapply(Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Position, calculate_relative_position)
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Relative.position <- sapply(Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Position, calculate_relative_position)
+```
+
+### Add relative position to Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov and Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
+```{r add-relative-positions-to-virome}
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Relative.position <- sapply(Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Position, calculate_relative_position_2)
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Relative.position <- sapply(Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Position, calculate_relative_position_2)
+```
+
+### Add categories and normnalized depths to Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov and Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov
+```{r add-categories-to-metagenome}
+# Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth <- rev(Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth) # REVERSE because position plots below include the reverse complement of the reference, reads were mapped to original sequence
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth.per.100M.reads <- Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth / (data_reform[which(data_reform$Sample == "Ga0485184"),]$Reads_paired_reads / 100000000) # normalize depth by 100M reads in sample
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth.normalized <- log10(Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth.per.100M.reads) # log10 transform depth axis
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Genome <- "Ga0485172__vRhyme_unbinned_38"
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Read.sample <- "Ga0485184"
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Read.sample.method <- "Virome"
+Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Genome.method <- "Mixed MG"
+head(Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov)
+
+# Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth <- rev(Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth) # REVERSE because position plots below include the reverse complement of the reference, reads were mapped to original sequence
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth.per.100M.reads <- Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth / (data_reform[which(data_reform$Sample == "Ga0485184"),]$Reads_paired_reads / 100000000) # normalize depth by 100M reads in sample
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth.normalized <- log10(Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Depth.per.100M.reads) # log10 transform depth axis
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Genome <- "Ga0485172__vRhyme_unbinned_38"
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Read.sample <- "Ga0485184"
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Read.sample.method <- "Mixed MG"
+Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov$Genome.method <- "Mixed MG"
+head(Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov)
+```
+
+### Add categories and normnalized depths to Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov and Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
+```{r add-categories-to-virome}
+# Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth.per.100M.reads <- Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth / (data_reform[which(data_reform$Sample == "Ga0485172"),]$Reads_paired_reads / 100000000) # normalize depth by 100M reads in sample
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth.normalized <- log10(Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth.per.100M.reads) # log10 transform depth axis
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Genome <- "Ga0485184__vRhyme_unbinned_566"
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Read.sample <- "Ga0485172"
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Read.sample.method <- "Mixed MG"
+Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Genome.method <- "Virome"
+head(Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov)
+
+# Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth.per.100M.reads <- Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth / (data_reform[which(data_reform$Sample == "Ga0485172"),]$Reads_paired_reads / 100000000) # normalize depth by 100M reads in sample
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth.normalized <- log10(Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Depth.per.100M.reads) # log10 transform depth axis
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Genome <- "Ga0485184__vRhyme_unbinned_566"
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Read.sample <- "Ga0485172"
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Read.sample.method <- "Virome"
+Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov$Genome.method <- "Virome"
+head(Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov)
+```
+
+### Combine dataframes for both assemblies
+```{r combine-depth-per-base}
+depth_per_base <- rbind(Ga0485172_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov,
+                        Ga0485172_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov,
+                        Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov,
+                        Ga0485184_to_Ga0485172__vRhyme_unbinned_38.depth_per_base.cov)
+saveRDS(depth_per_base, file="../Data/depth_per_base.RDS")
+head(depth_per_base)
+```
+
+# Gene annotations for highlighted vMAGs
+```{r features-highlighted-vmags}
+features.Ga0485184__vRhyme_unbinned_566 <- read.csv("../Tables/Ga0485184__vRhyme_unbinned_566_cds_final_merged_output.tsv", header=TRUE, sep="\t")
+features.Ga0485184__vRhyme_unbinned_566$Genome <- "Ga0485184__vRhyme_unbinned_566"
+features.Ga0485184__vRhyme_unbinned_566$Genome.method <- "Virome"
+features.Ga0485184__vRhyme_unbinned_566$color[features.Ga0485184__vRhyme_unbinned_566$color == 'None'] <- '#c9c9c9' # 'None' is invalid, change to grey
+features.Ga0485184__vRhyme_unbinned_566$start.relative <- sapply(features.Ga0485184__vRhyme_unbinned_566$start, calculate_relative_position_2) # Apply the function to get the relative position
+features.Ga0485184__vRhyme_unbinned_566$stop.relative <- sapply(features.Ga0485184__vRhyme_unbinned_566$stop, calculate_relative_position_2) # Apply the function to get the relative position
+head(features.Ga0485184__vRhyme_unbinned_566)
+
+features.Ga0485172__vRhyme_unbinned_38 <- read.csv("../Tables/Ga0485172__vRhyme_unbinned_38_reversed_cds_final_merged_output.tsv", header=TRUE, sep="\t")
+features.Ga0485172__vRhyme_unbinned_38$Genome <- "Ga0485172__vRhyme_unbinned_38"
+features.Ga0485172__vRhyme_unbinned_38$Genome.method <- "Mixed MG"
+features.Ga0485172__vRhyme_unbinned_38$color[features.Ga0485172__vRhyme_unbinned_38$color == 'None'] <- '#c9c9c9' # 'None' is invalid, change to grey
+features.Ga0485172__vRhyme_unbinned_38$start.relative <- sapply(features.Ga0485172__vRhyme_unbinned_38$start, calculate_relative_position) # Apply the function to get the relative position
+features.Ga0485172__vRhyme_unbinned_38$stop.relative <- sapply(features.Ga0485172__vRhyme_unbinned_38$stop, calculate_relative_position) # Apply the function to get the relative position
+head(features.Ga0485172__vRhyme_unbinned_38)
+
+features <- rbind(features.Ga0485184__vRhyme_unbinned_566, features.Ga0485172__vRhyme_unbinned_38)
+saveRDS(features, file="../Data/features_combined.RDS")
+head(features)
+```
+## Save dataframe representing shaded absent regions
+```{r features-absent-regions}
+rect <- data.frame(xmin = c(missing_range_start, 0), xmax = c(missing_range_end, 0), 
+                 ymin = c(-0.75, 0), ymax = c(max(depth_per_base$Depth.normalized), 0), 
+                 alpha = c(1, 1),
+                 fill = c("white", "white"))
+head(rect)
+saveRDS(rect, file="../Data/features_absent.RDS")
+```
+
+
