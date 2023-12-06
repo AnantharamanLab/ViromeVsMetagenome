@@ -1,7 +1,7 @@
 Gather and Organize Data
 ================
 James C. Kosmopoulos
-2023-12-05
+2023-12-06
 
 # Load packages
 
@@ -340,6 +340,117 @@ head(data_reform)
 ``` r
 saveRDS(data_reform, file = "../Data/stats_and_metadata.RDS")
 ```
+
+## Table S1
+
+``` r
+tableS1 <- data_reform[, c("Sample", "sample_source", "Environment", "Method", "Avg_paired_reads", "Bases_paired_reads", "Reads_paired_reads", "X..contigs.....0.bp.", "X..contigs.....2000.bp.", "X..contigs.....5000.bp.", "X..contigs.....10000.bp.", "X..contigs.....25000.bp.", "X..contigs.....50000.bp.", "Total.length.....0.bp.", "Total.length.....2000.bp.", "Total.length.....5000.bp.", "Total.length.....10000.bp.", "Total.length.....25000.bp.", "Total.length.....50000.bp.", "X..contigs", "Total.length", "N50", "N90", "L50", "L90", "viral.scaffold.no", "virus.no", "species.cluster.no", "genus.cluster.no", "no.of.virus.taxonomy.info", "lytic_no", "lysogen_no", "int_prophage_no", "checkv_low", "checkv_med", "checkv_high", "checkv_na")]
+colnames(tableS1) <- c("Sample", "Sample source",   "Environment", "Method", "Average read length", "Total bases",  "Total read pairs", "Number of contigs (>= 0 bp)",  "Number of contigs (>= 2000 bp)",   "Number of contigs (>= 5000 bp)",   "Number of contigs (>= 10000 bp)",  "Number of contigs (>= 25000 bp)",  "Number of contigs (>= 50000 bp)", "Total length (>= 0 bp)",    "Total length (>= 2000 bp)",    "Total length (>= 5000 bp)",    "Total length (>= 10000 bp)",   "Total length (>= 25000 bp)",   "Total length (>= 50000 bp)",   "Number of contigs",    "Total length", "N50",  "N90",  "L50",  "L90",  "Number of viral contigs",  "Number of VMAGs",  "Number of species clusters",   "Number of genus clusters", "Number of VMAGs with taxonomy information",    "Number of predicted lytic VMAGs",  "Number of predicted lysogenic VMAGs",  "Number of predicted integrated prophage VMAGs",    "Number of CheckV low-quality VMAGs",   "Number of CheckV medium-quality VMAGs",    "Number of CheckV high-quality VMAGs", "Number of CheckV not-determined")
+tableS1 <- tableS1 %>% 
+  mutate(Environment = case_when(Environment =="human_gut"~"Human gut",
+                          Environment =="freshwater"~"Freshwater",
+                          Environment =="marine"~"Marine",
+                          Environment =="soil"~"Soil"
+                      )) %>%
+  mutate(Method = case_when(Method == "metagenome"~"Mixed MG",
+                             Method == "virome"~"Virome",
+                            ))
+write.csv(tableS1, file = "../Tables/TableS1.csv")
+saveRDS(tableS1, file = "../Data/TableS1.RDS")
+head(tableS1)
+```
+
+    ##       Sample Sample source Environment   Method Average read length Total bases
+    ## 1 SRR9161505    APC055_916   Human gut   Virome               281.4  4161259362
+    ## 2 SRR9162904    APC055_916   Human gut Mixed MG               149.8   735582373
+    ## 3 SRR9161504    APC055_917   Human gut   Virome               276.0  4720624501
+    ## 4 SRR9162903    APC055_917   Human gut Mixed MG               149.7   661566686
+    ## 5 SRR9161507    APC055_918   Human gut   Virome               289.2  4282250065
+    ## 6 SRR9162906    APC055_918   Human gut Mixed MG               149.8   784243722
+    ##   Total read pairs Number of contigs (>= 0 bp) Number of contigs (>= 2000 bp)
+    ## 1         14788544                      195247                          13654
+    ## 2          4909488                       90373                           6203
+    ## 3         17102848                      170002                          12035
+    ## 4          4418516                       84992                           4820
+    ## 5         14808998                      120975                          11399
+    ## 6          5236862                      103476                           4419
+    ##   Number of contigs (>= 5000 bp) Number of contigs (>= 10000 bp)
+    ## 1                           3534                            1489
+    ## 2                           1352                             442
+    ## 3                           3135                            1339
+    ## 4                           1545                             614
+    ## 5                           2898                            1114
+    ## 6                           1000                             535
+    ##   Number of contigs (>= 25000 bp) Number of contigs (>= 50000 bp)
+    ## 1                             495                             190
+    ## 2                             140                              46
+    ## 3                             476                             178
+    ## 4                             152                              63
+    ## 5                             486                             265
+    ## 6                             223                              96
+    ##   Total length (>= 0 bp) Total length (>= 2000 bp) Total length (>= 5000 bp)
+    ## 1              217108812                  87843191                  58337795
+    ## 2               81458979                  32134071                  17825580
+    ## 3              193515957                  77386482                  51631395
+    ## 4               75606946                  31939177                  22270022
+    ## 5              168572364                  87215534                  62057307
+    ## 6               89937920                  31769357                  22124734
+    ##   Total length (>= 10000 bp) Total length (>= 25000 bp)
+    ## 1                   44494048                   29374791
+    ## 2                   11761781                    7072004
+    ## 3                   39420061                   26432307
+    ## 4                   15915970                    8951144
+    ## 5                   49993244                   40570009
+    ## 6                   18891075                   13978638
+    ##   Total length (>= 50000 bp) Number of contigs Total length   N50  N90  L50
+    ## 1                   18608150             13654     87843191 10324 2483 1433
+    ## 2                    3866591              6203     32134071  5859 2384 1027
+    ## 3                   16107803             12035     77386482 10453 2470 1268
+    ## 4                    5959624              4820     31939177  9938 2585  620
+    ## 5                   32648308             11399     87215534 18449 2636  630
+    ## 6                    9552820              4419     31769357 18285 2469  312
+    ##    L90 Number of viral contigs Number of VMAGs Number of species clusters
+    ## 1 9698                     183             164                        164
+    ## 2 4730                      66              65                         65
+    ## 3 8530                     154             126                        126
+    ## 4 3407                      72              70                         70
+    ## 5 7579                     191             175                        175
+    ## 6 2977                      65              60                         60
+    ##   Number of genus clusters Number of VMAGs with taxonomy information
+    ## 1                      124                                        54
+    ## 2                       58                                        10
+    ## 3                      102                                        37
+    ## 4                       60                                        22
+    ## 5                      140                                        49
+    ## 6                       52                                         6
+    ##   Number of predicted lytic VMAGs Number of predicted lysogenic VMAGs
+    ## 1                              83                                  30
+    ## 2                              36                                   8
+    ## 3                              51                                  22
+    ## 4                              36                                  11
+    ## 5                              83                                  35
+    ## 6                              28                                   8
+    ##   Number of predicted integrated prophage VMAGs
+    ## 1                                            51
+    ## 2                                            21
+    ## 3                                            53
+    ## 4                                            23
+    ## 5                                            57
+    ## 6                                            24
+    ##   Number of CheckV low-quality VMAGs Number of CheckV medium-quality VMAGs
+    ## 1                                 82                                    24
+    ## 2                                 41                                     5
+    ## 3                                 53                                    21
+    ## 4                                 42                                     5
+    ## 5                                 75                                    24
+    ## 6                                 17                                     6
+    ##   Number of CheckV high-quality VMAGs Number of CheckV not-determined
+    ## 1                                  19                              35
+    ## 2                                   2                              17
+    ## 3                                  13                              32
+    ## 4                                   3                              19
+    ## 5                                  11                              45
+    ## 6                                   3                              33
 
 ## Contig stats
 
@@ -1542,3 +1653,592 @@ head(rect)
 ``` r
 saveRDS(rect, file="../Data/features_absent.RDS")
 ```
+
+# Gene counts
+
+``` r
+counts.gut <- read.csv('../Tables/gene_counts_human_gut.csv', header = TRUE, row.names = 1)
+saveRDS(counts.gut, file = "../Data/gene_counts_human_gut.RDS")
+head(counts.gut)
+```
+
+    ##                                       SRR9162900 SRR9161506 SRR9161509
+    ## vRhyme_unbinned_19__SRR9162906_435_1           0          0          0
+    ## vRhyme_unbinned_19__SRR9162906_435_3           2        309        330
+    ## vRhyme_unbinned_19__SRR9162906_435_13          0         10          0
+    ## vRhyme_unbinned_53__SRR9162906_141_2           0          4          0
+    ## vRhyme_unbinned_53__SRR9162906_141_3           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_14          0          0          0
+    ##                                       SRR9161503 SRR9162908 SRR9162903
+    ## vRhyme_unbinned_19__SRR9162906_435_1           0          0          0
+    ## vRhyme_unbinned_19__SRR9162906_435_3          81        160         63
+    ## vRhyme_unbinned_19__SRR9162906_435_13          0         46          0
+    ## vRhyme_unbinned_53__SRR9162906_141_2           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_3           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_14          0          0          0
+    ##                                       SRR9162902 SRR9161501 SRR9162899
+    ## vRhyme_unbinned_19__SRR9162906_435_1           0          0          0
+    ## vRhyme_unbinned_19__SRR9162906_435_3          95         34         59
+    ## vRhyme_unbinned_19__SRR9162906_435_13          0          0          9
+    ## vRhyme_unbinned_53__SRR9162906_141_2           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_3           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_14          0          0          0
+    ##                                       SRR9161504 SRR9162904 SRR9161505
+    ## vRhyme_unbinned_19__SRR9162906_435_1           0          0          0
+    ## vRhyme_unbinned_19__SRR9162906_435_3          38          4          3
+    ## vRhyme_unbinned_19__SRR9162906_435_13          0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_2           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_3           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_14          0          0          0
+    ##                                       SRR9162907 SRR9161507 SRR9162906
+    ## vRhyme_unbinned_19__SRR9162906_435_1           0          0          1
+    ## vRhyme_unbinned_19__SRR9162906_435_3         121         49        158
+    ## vRhyme_unbinned_19__SRR9162906_435_13          2          0         22
+    ## vRhyme_unbinned_53__SRR9162906_141_2           0          0          6
+    ## vRhyme_unbinned_53__SRR9162906_141_3           0          0          3
+    ## vRhyme_unbinned_53__SRR9162906_141_14          0          0          0
+    ##                                       SRR9162901 SRR9161510 SRR9161502
+    ## vRhyme_unbinned_19__SRR9162906_435_1           0          0          0
+    ## vRhyme_unbinned_19__SRR9162906_435_3          57          0        400
+    ## vRhyme_unbinned_19__SRR9162906_435_13          4          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_2           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_3           0          0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_14          0          0          0
+    ##                                       SRR9162905 SRR9161500
+    ## vRhyme_unbinned_19__SRR9162906_435_1           0          0
+    ## vRhyme_unbinned_19__SRR9162906_435_3          61          0
+    ## vRhyme_unbinned_19__SRR9162906_435_13          5          0
+    ## vRhyme_unbinned_53__SRR9162906_141_2           4          0
+    ## vRhyme_unbinned_53__SRR9162906_141_3           0          0
+    ## vRhyme_unbinned_53__SRR9162906_141_14          1          0
+
+``` r
+counts.fw <- read.csv('../Tables/gene_counts_freshwater.csv', header = TRUE, row.names = 1)
+saveRDS(counts.fw, file = "../Data/gene_counts_freshwater.RDS")
+head(counts.fw)
+```
+
+    ##                                           Ga0485173 Ga0485185 Ga0485166
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5       1092         2         1
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9       2774        11         1
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11       464         2         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14       707         1         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22       156         3         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29       596         1         0
+    ##                                           Ga0485170 Ga0485162 Ga0485181
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          0         4         5
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          0         6         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         0         1         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0         0         0
+    ##                                           Ga0485161 Ga0485169 Ga0485171
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         0         1         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0         0         0
+    ##                                           Ga0485178 Ga0485158 Ga0485176
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          0         1         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          0         2         2
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         0         0         1
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0         0         1
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0         0         5
+    ##                                           Ga0485167 Ga0485182 Ga0485165
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          0         7         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          0        18         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         0         1         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0         1         0
+    ##                                           Ga0485180 Ga0485168 Ga0485174
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          0         0         1
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          1         0         6
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0         1         3
+    ##                                           Ga0485184 Ga0485177 Ga0485175
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          2         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          3         7         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         3         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0         5         1
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0         1         0
+    ##                                           Ga0485157 Ga0485172 Ga0485186
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          0         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          2         0         4
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         1         2         8
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0         0         8
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0         0         2
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0         0         2
+    ##                                           Ga0485159 Ga0485164 Ga0485183
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5        129         1         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9        260         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11        42         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14        27         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22        20         0         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29        39         0         0
+    ##                                           Ga0485179
+    ## vRhyme_unbinned_369__Ga0485159_0000068_5          0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_9          0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_11         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_14         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_22         0
+    ## vRhyme_unbinned_369__Ga0485159_0000068_29         0
+
+``` r
+counts.mar <- read.csv('../Tables/gene_counts_marine.csv', header = TRUE, row.names = 1)
+saveRDS(counts.mar, file = "../Data/gene_counts_marine.RDS")
+head(counts.mar)
+```
+
+    ##                                                                     ERR594382
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599146
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594411
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594362
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR598984
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         6
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         5
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33        22
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         4
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     2
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                   897
+    ##                                                                     ERR599006
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599173
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594377
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599144
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594392
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594391
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                    21
+    ##                                                                     ERR599165
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30       163
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32        88
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33       168
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34        32
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                   227
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                   413
+    ##                                                                     ERR594354
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     4
+    ##                                                                     ERR599110
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599174
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30       107
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32        39
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33       159
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34        15
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     7
+    ##                                                                     ERR594355
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594388
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594353
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                  1259
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                  2110
+    ##                                                                     ERR599065
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         2
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                   660
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                  1085
+    ##                                                                     ERR599122
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599044
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30      2237
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32       997
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33      2551
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34       453
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599133
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30        81
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32        14
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33        80
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34        20
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     4
+    ##                                                                     ERR594409
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599148
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30       165
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32        68
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33       205
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34        40
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                    14
+    ##                                                                     ERR599017
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30       141
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32        63
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33       149
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34        25
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     3
+    ##                                                                     ERR599023
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594379
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                    12
+    ##                                                                     ERR599126
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         8
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         2
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33        46
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34        17
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     1
+    ##                                                                     ERR599118
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                   308
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                   339
+    ##                                                                     ERR594364
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                    98
+    ##                                                                     ERR594389
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594415
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594380
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     2
+    ##                                                                     ERR594407
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     2
+    ##                                                                     ERR594404
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599150
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR598982
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599121
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594385
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR594412
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                    40
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                    70
+    ##                                                                     ERR594359
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33         0
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34         0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                     0
+    ##                                                                     ERR599005
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30      1082
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_32       484
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_33      1245
+    ## vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_34       236
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_1                     0
+    ## vRhyme_unbinned_8__NODE_256_length_20384_cov_0.136554_2                   257
+
+``` r
+counts.soil <- read.csv('../Tables/gene_counts_soil.csv', header = TRUE, row.names = 1)
+saveRDS(counts.soil, file = "../Data/gene_counts_soil.RDS")
+head(counts.soil)
+```
+
+    ##                                     SRR8487032 SRR8487034 SRR8487037 SRR8487027
+    ## vRhyme_bin_2__SRR8487012_24_5                0         38          0          0
+    ## vRhyme_bin_2__SRR8487012_24_6                0          4          0          0
+    ## vRhyme_unbinned_1__SRR8487012_17_4           0        166         13         24
+    ## vRhyme_unbinned_1__SRR8487012_17_5           0         97         13          1
+    ## vRhyme_unbinned_1__SRR8487012_17_7           0         41          7          3
+    ## vRhyme_unbinned_1__SRR8487012_17_11          0          4          0          0
+    ##                                     SRR8487038 SRR8487024 SRR8487036 SRR8487030
+    ## vRhyme_bin_2__SRR8487012_24_5                0          0         39          0
+    ## vRhyme_bin_2__SRR8487012_24_6                0          0          3          0
+    ## vRhyme_unbinned_1__SRR8487012_17_4           0          0         73          6
+    ## vRhyme_unbinned_1__SRR8487012_17_5           0          0         82          8
+    ## vRhyme_unbinned_1__SRR8487012_17_7           0          0         19          0
+    ## vRhyme_unbinned_1__SRR8487012_17_11          0          0          8          0
+    ##                                     SRR8487040 SRR8487025 SRR8487011 SRR8487010
+    ## vRhyme_bin_2__SRR8487012_24_5                0          0         23          5
+    ## vRhyme_bin_2__SRR8487012_24_6                0          0          0          2
+    ## vRhyme_unbinned_1__SRR8487012_17_4           6          0         22        126
+    ## vRhyme_unbinned_1__SRR8487012_17_5           0          0         18        108
+    ## vRhyme_unbinned_1__SRR8487012_17_7           0          0          8         29
+    ## vRhyme_unbinned_1__SRR8487012_17_11          0          0          3          9
+    ##                                     SRR8487018 SRR8487016 SRR8487035 SRR8487023
+    ## vRhyme_bin_2__SRR8487012_24_5               73        111         64        174
+    ## vRhyme_bin_2__SRR8487012_24_6               10         26          0         33
+    ## vRhyme_unbinned_1__SRR8487012_17_4         172         48         40         32
+    ## vRhyme_unbinned_1__SRR8487012_17_5         120         48         25         31
+    ## vRhyme_unbinned_1__SRR8487012_17_7          48         24         10         12
+    ## vRhyme_unbinned_1__SRR8487012_17_11         18         10          4          3
+    ##                                     SRR8487019 SRR8487026 SRR8487028 SRR8487021
+    ## vRhyme_bin_2__SRR8487012_24_5              168          0          0         12
+    ## vRhyme_bin_2__SRR8487012_24_6               33          0          0          2
+    ## vRhyme_unbinned_1__SRR8487012_17_4          93          0          0        336
+    ## vRhyme_unbinned_1__SRR8487012_17_5          86          0          0        195
+    ## vRhyme_unbinned_1__SRR8487012_17_7          26          0          0         67
+    ## vRhyme_unbinned_1__SRR8487012_17_11          5          0          0         20
+    ##                                     SRR8487020 SRR8487039 SRR8487031 SRR8487015
+    ## vRhyme_bin_2__SRR8487012_24_5              105          0          0         14
+    ## vRhyme_bin_2__SRR8487012_24_6               11          0          0          0
+    ## vRhyme_unbinned_1__SRR8487012_17_4         177          0        194         12
+    ## vRhyme_unbinned_1__SRR8487012_17_5         164          0        221         19
+    ## vRhyme_unbinned_1__SRR8487012_17_7          65          0         71          8
+    ## vRhyme_unbinned_1__SRR8487012_17_11          8          0          8          0
+    ##                                     SRR8487029 SRR8487017 SRR8487013 SRR8487012
+    ## vRhyme_bin_2__SRR8487012_24_5                0        106          0        316
+    ## vRhyme_bin_2__SRR8487012_24_6                0          9          0         39
+    ## vRhyme_unbinned_1__SRR8487012_17_4           0        102         15        371
+    ## vRhyme_unbinned_1__SRR8487012_17_5           0        102          3        248
+    ## vRhyme_unbinned_1__SRR8487012_17_7           0         27          3        116
+    ## vRhyme_unbinned_1__SRR8487012_17_11          0          7          2         30
+    ##                                     SRR8487014 SRR8487022
+    ## vRhyme_bin_2__SRR8487012_24_5              639        654
+    ## vRhyme_bin_2__SRR8487012_24_6              112         81
+    ## vRhyme_unbinned_1__SRR8487012_17_4          50        230
+    ## vRhyme_unbinned_1__SRR8487012_17_5          31        143
+    ## vRhyme_unbinned_1__SRR8487012_17_7          17         85
+    ## vRhyme_unbinned_1__SRR8487012_17_11          6         11
+
+# Pharokka annotations for genes
+
+``` r
+annot.pharokka.gut <- read.csv("../Tables/pharokka_human_gut_virus_proteins.csv")
+annot.pharokka.gut$gene <- sub("_CDS_0001", "", annot.pharokka.gut$gene)
+saveRDS(annot.pharokka.gut, file="../Data/pharokka_human_gut_genes.RDS")
+head(annot.pharokka.gut)
+```
+
+    ##                                   gene   color                annot
+    ## 1 vRhyme_unbinned_19__SRR9162906_435_1    None hypothetical protein
+    ## 2 vRhyme_unbinned_19__SRR9162906_435_2    None hypothetical protein
+    ## 3 vRhyme_unbinned_19__SRR9162906_435_3 #c9c9c9 hypothetical protein
+    ## 4 vRhyme_unbinned_19__SRR9162906_435_4    None hypothetical protein
+    ## 5 vRhyme_unbinned_19__SRR9162906_435_5    None hypothetical protein
+    ## 6 vRhyme_unbinned_19__SRR9162906_435_6    None hypothetical protein
+    ##           category
+    ## 1 unknown function
+    ## 2 unknown function
+    ## 3 unknown function
+    ## 4 unknown function
+    ## 5 unknown function
+    ## 6 unknown function
+
+``` r
+annot.pharokka.fw <- read.csv("../Tables/pharokka_freshwater_virus_proteins.csv")
+annot.pharokka.fw$gene <- sub("_CDS_0001", "", annot.pharokka.fw$gene)
+saveRDS(annot.pharokka.fw, file="../Data/pharokka_freshwater_genes.RDS")
+head(annot.pharokka.fw)
+```
+
+    ##                                       gene   color
+    ## 1 vRhyme_unbinned_369__Ga0485159_0000068_1 #ffdf59
+    ## 2 vRhyme_unbinned_369__Ga0485159_0000068_2 #ffdf59
+    ## 3 vRhyme_unbinned_369__Ga0485159_0000068_3 #ffdf59
+    ## 4 vRhyme_unbinned_369__Ga0485159_0000068_4 #ffdf59
+    ## 5 vRhyme_unbinned_369__Ga0485159_0000068_5 #c9c9c9
+    ## 6 vRhyme_unbinned_369__Ga0485159_0000068_6 #ff59f5
+    ##                                annot
+    ## 1     clamp loader of DNA polymerase
+    ## 2                DNA binding protein
+    ## 3                 DNA endonuclease V
+    ## 4 DNA polymerase processivity factor
+    ## 5               hypothetical protein
+    ## 6             porphyrin biosynthesis
+    ##                                            category
+    ## 1                DNA, RNA and nucleotide metabolism
+    ## 2                DNA, RNA and nucleotide metabolism
+    ## 3                DNA, RNA and nucleotide metabolism
+    ## 4                DNA, RNA and nucleotide metabolism
+    ## 5                                  unknown function
+    ## 6 moron, auxiliary metabolic gene and host takeover
+
+``` r
+annot.pharokka.mar <- read.csv("../Tables/pharokka_marine_virus_proteins.csv")
+annot.pharokka.mar$gene <- sub("_CDS_0001", "", annot.pharokka.mar$gene)
+saveRDS(annot.pharokka.mar, file="../Data/pharokka_marine_genes.RDS")
+head(annot.pharokka.mar)
+```
+
+    ##                                                                  gene   color
+    ## 1 vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_26 #ff59f5
+    ## 2 vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_27 #fea328
+    ## 3 vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_28    None
+    ## 4 vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_29 #c9c9c9
+    ## 5 vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_30    None
+    ## 6 vRhyme_unbinned_19__NODE_79_length_37623_cov_0.132795_fragment_1_31 #c9c9c9
+    ##                      annot                                          category
+    ## 1 anti-restriction protein moron, auxiliary metabolic gene and host takeover
+    ## 2              transposase                          integration and excision
+    ## 3     hypothetical protein                                  unknown function
+    ## 4     hypothetical protein                                  unknown function
+    ## 5     hypothetical protein                                  unknown function
+    ## 6     hypothetical protein                                  unknown function
+
+``` r
+annot.pharokka.soil <- read.csv("../Tables/pharokka_soil_virus_proteins.csv")
+annot.pharokka.soil$gene <- sub("_CDS_0001", "", annot.pharokka.soil$gene)
+saveRDS(annot.pharokka.soil, file="../Data/pharokka_soil_genes.RDS")
+head(annot.pharokka.soil)
+```
+
+    ##                            gene color                annot         category
+    ## 1 vRhyme_bin_2__SRR8487012_29_2  None hypothetical protein unknown function
+    ## 2 vRhyme_bin_2__SRR8487012_29_3  None hypothetical protein unknown function
+    ## 3 vRhyme_bin_2__SRR8487012_29_4  None hypothetical protein unknown function
+    ## 4 vRhyme_bin_2__SRR8487012_29_5  None hypothetical protein unknown function
+    ## 5 vRhyme_bin_2__SRR8487012_29_7  None hypothetical protein unknown function
+    ## 6 vRhyme_bin_2__SRR8487012_29_8  None hypothetical protein unknown function

@@ -1033,6 +1033,15 @@ Requires Pharokka v1.4.1
 pharokka.py -i virus_genes/marine_virus_genes_combined.ffn -o pharokka_out/marine/ -d pharokka_db -t 100 -f -g prodigal -m
 ```
 
+### Subset output tables to only contain most relevant columns for later
+Since the outputs are rather large for git
+
+```{bash susbet-pharokka-functions}
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+cut -f 1,21,22,23 pharokka_out/marine/pharokka_cds_final_merged_output.tsv > pharokka_out/marine/pharokka_marine_virus_proteins.tsv
+```
+
 
 
 

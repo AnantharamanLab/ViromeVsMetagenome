@@ -69,6 +69,24 @@ head(data_reform)
 saveRDS(data_reform, file = "../Data/stats_and_metadata.RDS")
 ```
 
+## Table S1
+```{r TableS1}
+tableS1 <- data_reform[, c("Sample", "sample_source", "Environment", "Method", "Avg_paired_reads", "Bases_paired_reads", "Reads_paired_reads", "X..contigs.....0.bp.", "X..contigs.....2000.bp.", "X..contigs.....5000.bp.", "X..contigs.....10000.bp.", "X..contigs.....25000.bp.", "X..contigs.....50000.bp.", "Total.length.....0.bp.", "Total.length.....2000.bp.", "Total.length.....5000.bp.", "Total.length.....10000.bp.", "Total.length.....25000.bp.", "Total.length.....50000.bp.", "X..contigs", "Total.length", "N50", "N90", "L50", "L90", "viral.scaffold.no", "virus.no", "species.cluster.no", "genus.cluster.no", "no.of.virus.taxonomy.info", "lytic_no", "lysogen_no", "int_prophage_no", "checkv_low", "checkv_med", "checkv_high", "checkv_na")]
+colnames(tableS1) <- c("Sample", "Sample source",	"Environment", "Method", "Average read length",	"Total bases",	"Total read pairs",	"Number of contigs (>= 0 bp)",	"Number of contigs (>= 2000 bp)",	"Number of contigs (>= 5000 bp)",	"Number of contigs (>= 10000 bp)",	"Number of contigs (>= 25000 bp)",	"Number of contigs (>= 50000 bp)", "Total length (>= 0 bp)",	"Total length (>= 2000 bp)",	"Total length (>= 5000 bp)",	"Total length (>= 10000 bp)",	"Total length (>= 25000 bp)",	"Total length (>= 50000 bp)",	"Number of contigs",	"Total length",	"N50",	"N90",	"L50",	"L90",	"Number of viral contigs",	"Number of VMAGs",	"Number of species clusters",	"Number of genus clusters",	"Number of VMAGs with taxonomy information",	"Number of predicted lytic VMAGs",	"Number of predicted lysogenic VMAGs",	"Number of predicted integrated prophage VMAGs",	"Number of CheckV low-quality VMAGs",	"Number of CheckV medium-quality VMAGs",	"Number of CheckV high-quality VMAGs", "Number of CheckV not-determined")
+tableS1 <- tableS1 %>% 
+  mutate(Environment = case_when(Environment =="human_gut"~"Human gut",
+                          Environment =="freshwater"~"Freshwater",
+                          Environment =="marine"~"Marine",
+                          Environment =="soil"~"Soil"
+                      )) %>%
+  mutate(Method = case_when(Method == "metagenome"~"Mixed MG",
+                             Method == "virome"~"Virome",
+                            ))
+write.csv(tableS1, file = "../Tables/TableS1.csv")
+saveRDS(tableS1, file = "../Data/TableS1.RDS")
+head(tableS1)
+```
+
 ## Contig stats
 ```{r contig-stats}
 contig_stats <- data_reform[, c("Sample", "sample_source", "Environment", "Method", "env2", "method2")]
@@ -379,4 +397,42 @@ head(rect)
 saveRDS(rect, file="../Data/features_absent.RDS")
 ```
 
+# Gene counts
+```{r gene-counts}
+counts.gut <- read.csv('../Tables/gene_counts_human_gut.csv', header = TRUE, row.names = 1)
+saveRDS(counts.gut, file = "../Data/gene_counts_human_gut.RDS")
+head(counts.gut)
+counts.fw <- read.csv('../Tables/gene_counts_freshwater.csv', header = TRUE, row.names = 1)
+saveRDS(counts.fw, file = "../Data/gene_counts_freshwater.RDS")
+head(counts.fw)
+counts.mar <- read.csv('../Tables/gene_counts_marine.csv', header = TRUE, row.names = 1)
+saveRDS(counts.mar, file = "../Data/gene_counts_marine.RDS")
+head(counts.mar)
+counts.soil <- read.csv('../Tables/gene_counts_soil.csv', header = TRUE, row.names = 1)
+saveRDS(counts.soil, file = "../Data/gene_counts_soil.RDS")
+head(counts.soil)
+```
+
+# Pharokka annotations for genes
+```{r pharokka-genes}
+annot.pharokka.gut <- read.csv("../Tables/pharokka_human_gut_virus_proteins.csv")
+annot.pharokka.gut$gene <- sub("_CDS_0001", "", annot.pharokka.gut$gene)
+saveRDS(annot.pharokka.gut, file="../Data/pharokka_human_gut_genes.RDS")
+head(annot.pharokka.gut)
+
+annot.pharokka.fw <- read.csv("../Tables/pharokka_freshwater_virus_proteins.csv")
+annot.pharokka.fw$gene <- sub("_CDS_0001", "", annot.pharokka.fw$gene)
+saveRDS(annot.pharokka.fw, file="../Data/pharokka_freshwater_genes.RDS")
+head(annot.pharokka.fw)
+
+annot.pharokka.mar <- read.csv("../Tables/pharokka_marine_virus_proteins.csv")
+annot.pharokka.mar$gene <- sub("_CDS_0001", "", annot.pharokka.mar$gene)
+saveRDS(annot.pharokka.mar, file="../Data/pharokka_marine_genes.RDS")
+head(annot.pharokka.mar)
+
+annot.pharokka.soil <- read.csv("../Tables/pharokka_soil_virus_proteins.csv")
+annot.pharokka.soil$gene <- sub("_CDS_0001", "", annot.pharokka.soil$gene)
+saveRDS(annot.pharokka.soil, file="../Data/pharokka_soil_genes.RDS")
+head(annot.pharokka.soil)
+```
 

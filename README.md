@@ -6,7 +6,7 @@ Original, raw sequence reads representing freshwater, human gut, marine, and soi
 # Repository organization
 `Data` contains `.RDS` formatted data that can be loaded into R for analysis. These data include sample metadata as well as viral community summary statistics, virus counts, virus-host predictions, gene counts, gene annotations, and read mapping statistics.
 
-`Tables` include `.csv` formatted data tables used in analyses to generate the data files present in `Data`.
+`Tables` include `.csv` and `.tsv` formatted data tables used in analyses to generate the data files present in `Data`.
 
 `Notebooks` contain R markdown notebooks of all the R code used for the analyses described here. A table of contents for these notebooks is given below. It also contains a notebook `workflow.md` with commands used for the bioinformatics workflow as described in Figure 1B-C.
 
@@ -14,7 +14,7 @@ Original, raw sequence reads representing freshwater, human gut, marine, and soi
 
 # Notebook Table of Contents
 1. [Bioinformatic workflow](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/workflow.md)
-2. [Gather and organize data](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/data.md)
+2. [Gather and organize data, Table S1](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/data.md)
 3. [Figure 2, Figure S1, Figure S2, Figure S3](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/summary_stats.md)
 4. [Figure 3, Figure S4, Figure S5](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/presence_absence.md)
 5. [Figure S6](https://github.com/jamesck2/ViromeVsMetagenome/blob/main/Notebooks/specaccum.md)

@@ -1,7 +1,7 @@
 General bioinformatics workflow
 ================
 James C. Kosmopoulos
-2023-12-05
+2023-12-06
 
 # READ ME
 
@@ -776,9 +776,6 @@ samtools depth map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485172__vRh
 samtools depth map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.bam > vmag_coverage/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
 ```
 
-The four resulting files were manually combined into one table with an
-added column specifying the read sample.
-
 ## Run Pharokka on each vMAG to obtain genome annotations
 
 Requires Pharokka v1.4.1
@@ -1107,4 +1104,14 @@ Requires Pharokka v1.4.1
 # One example given for one environment
 # Replace "marine" with the correct environment when running for the others
 pharokka.py -i virus_genes/marine_virus_genes_combined.ffn -o pharokka_out/marine/ -d pharokka_db -t 100 -f -g prodigal -m
+```
+
+### Subset output tables to only contain most relevant columns for later
+
+Since the outputs are rather large for git
+
+``` bash
+# One example given for one environment
+# Replace "marine" with the correct environment when running for the others
+cut -f 1,21,22,23 pharokka_out/marine/pharokka_cds_final_merged_output.tsv > pharokka_out/marine/pharokka_marine_virus_proteins.tsv
 ```
