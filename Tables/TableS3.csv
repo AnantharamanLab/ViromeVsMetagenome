@@ -1,0 +1,121 @@
+Enrichment,Class,pval,Test,padj,Environment
+Mixed MG,unknown function,3.3467026544817944e-8,Over,1.6733513272408973e-7,Freshwater
+Mixed MG,lysis,1,Over,1,Freshwater
+Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.7681482448931661,Over,1,Freshwater
+Mixed MG,"DNA, RNA and nucleotide metabolism",0.15810733597140994,Over,0.3513496354920221,Freshwater
+Mixed MG,other,0.0625918316243414,Over,0.1564795790608535,Freshwater
+Mixed MG,tail,0.999997778322542,Over,1,Freshwater
+Mixed MG,head and packaging,1,Over,1,Freshwater
+Mixed MG,connector,0.9998166340788153,Over,1,Freshwater
+Mixed MG,integration and excision,1.3897902855315699e-47,Over,2.7795805710631395e-46,Freshwater
+Mixed MG,transcription regulation,0.054021074270927914,Over,0.15434592648836548,Freshwater
+Mixed MG,unknown function,0.9999999665329735,Under,1,Freshwater
+Mixed MG,lysis,6.784324970208582e-17,Under,4.522883313472388e-16,Freshwater
+Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.23185175510683387,Under,0.46370351021366774,Freshwater
+Mixed MG,"DNA, RNA and nucleotide metabolism",0.8418926640285901,Under,1,Freshwater
+Mixed MG,other,0.9374081683756585,Under,1,Freshwater
+Mixed MG,tail,2.2216774579705593e-6,Under,8.886709831882237e-6,Freshwater
+Mixed MG,head and packaging,1.6577586550452262e-19,Under,1.6577586550452262e-18,Freshwater
+Mixed MG,connector,1.8336592118480167e-4,Under,6.112197372826723e-4,Freshwater
+Mixed MG,integration and excision,1,Under,1,Freshwater
+Mixed MG,transcription regulation,0.945978925729072,Under,1,Freshwater
+Virome,unknown function,0.9999999620538234,Over,1,Freshwater
+Virome,lysis,2.5034218634114742e-17,Over,1.668947908940983e-16,Freshwater
+Virome,"moron, auxiliary metabolic gene and host takeover",0.21010530723455942,Over,0.42021061446911884,Freshwater
+Virome,"DNA, RNA and nucleotide metabolism",0.8324628116166781,Over,1,Freshwater
+Virome,other,0.9306762552574743,Over,1,Freshwater
+Virome,tail,1.7217748023070575e-6,Over,6.88709920922823e-6,Freshwater
+Virome,head and packaging,1.0640851210707813e-19,Over,1.0640851210707812e-18,Freshwater
+Virome,connector,1.0931339469652826e-4,Over,3.6437798232176086e-4,Freshwater
+Virome,integration and excision,1,Over,1,Freshwater
+Virome,transcription regulation,0.9269231101138415,Over,1,Freshwater
+Virome,unknown function,3.794617661368324e-8,Under,1.8973088306841622e-7,Freshwater
+Virome,lysis,1,Under,1,Freshwater
+Virome,"moron, auxiliary metabolic gene and host takeover",0.7898946927654406,Under,1,Freshwater
+Virome,"DNA, RNA and nucleotide metabolism",0.16753718838332188,Under,0.37230486307404864,Freshwater
+Virome,other,0.0693237447425257,Under,0.18269222471539617,Freshwater
+Virome,tail,0.9999982782251977,Under,1,Freshwater
+Virome,head and packaging,1,Under,1,Freshwater
+Virome,connector,0.9998906866053034,Under,1,Freshwater
+Virome,integration and excision,2.6819500636907472e-46,Under,5.363900127381495e-45,Freshwater
+Virome,transcription regulation,0.07307688988615847,Under,0.18269222471539617,Freshwater
+Virome,tail,0.9983645685181344,Over,0.9999999952852952,Marine
+Virome,unknown function,4.7147048522224215e-9,Over,9.429409704444843e-8,Marine
+Virome,head and packaging,0.07627194749248113,Over,0.25423982497493713,Marine
+Virome,lysis,0.6740315442712865,Over,0.9999999952852952,Marine
+Virome,"DNA, RNA and nucleotide metabolism",0.9992448618825992,Over,0.9999999952852952,Marine
+Virome,other,0.9968435438271666,Over,0.9999999952852952,Marine
+Virome,"moron, auxiliary metabolic gene and host takeover",0.9963297732560075,Over,0.9999999952852952,Marine
+Virome,connector,0.8527523956728456,Over,0.9999999952852952,Marine
+Virome,transcription regulation,0.6517585380626765,Over,0.9999999952852952,Marine
+Virome,integration and excision,0.602566339554267,Over,0.9999999952852952,Marine
+Virome,tail,0.0016354314818656699,Under,0.010902876545771134,Marine
+Virome,unknown function,0.9999999952852952,Under,0.9999999952852952,Marine
+Virome,head and packaging,0.9237280525075189,Under,0.9999999952852952,Marine
+Virome,lysis,0.3259684557287135,Under,0.7738699154162746,Marine
+Virome,"DNA, RNA and nucleotide metabolism",7.551381174007933e-4,Under,0.007551381174007933,Marine
+Virome,other,0.003156456172833467,Under,0.014680906975970196,Marine
+Virome,"moron, auxiliary metabolic gene and host takeover",0.003670226743992549,Under,0.014680906975970196,Marine
+Virome,connector,0.1472476043271545,Under,0.4207074409347272,Marine
+Virome,transcription regulation,0.3482414619373235,Under,0.7738699154162746,Marine
+Virome,integration and excision,0.39743366044573303,Under,0.7948673208914661,Marine
+Mixed MG,tail,5.340581724996047e-4,Over,0.0012185027474229432,Marine
+Mixed MG,unknown function,0.9999999874533511,Over,1,Marine
+Mixed MG,head and packaging,0.8815783198407968,Over,1,Marine
+Mixed MG,lysis,0,Over,0,Marine
+Mixed MG,"DNA, RNA and nucleotide metabolism",2.1602642610169732e-4,Over,7.200880870056578e-4,Marine
+Mixed MG,other,5.483262363403244e-4,Over,0.0012185027474229432,Marine
+Mixed MG,"moron, auxiliary metabolic gene and host takeover",3.968527973365561e-4,Over,0.0011338651352473031,Marine
+Mixed MG,connector,0,Over,0,Marine
+Mixed MG,transcription regulation,0,Over,0,Marine
+Mixed MG,integration and excision,0,Over,0,Marine
+Mixed MG,tail,0.9994659418275004,Under,1,Marine
+Mixed MG,unknown function,1.2546648941781446e-8,Under,5.018659576712578e-8,Marine
+Mixed MG,head and packaging,0.11842168015920321,Under,0.23684336031840642,Marine
+Mixed MG,lysis,1,Under,1,Marine
+Mixed MG,"DNA, RNA and nucleotide metabolism",0.9997839735738983,Under,1,Marine
+Mixed MG,other,0.9994516737636596,Under,1,Marine
+Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.9996031472026634,Under,1,Marine
+Mixed MG,connector,1,Under,1,Marine
+Mixed MG,transcription regulation,1,Under,1,Marine
+Mixed MG,integration and excision,1,Under,1,Marine
+Virome,unknown function,0.999999999999896,Over,0.999999999999896,Soil
+Virome,head and packaging,2.2093890429018767e-12,Over,2.2093890429018767e-11,Soil
+Virome,tail,0.0019157559722889142,Over,0.009578779861444571,Soil
+Virome,lysis,0.02493523808414084,Over,0.08311746028046947,Soil
+Virome,"DNA, RNA and nucleotide metabolism",0.04896675306067016,Over,0.13990500874477188,Soil
+Virome,"moron, auxiliary metabolic gene and host takeover",0.011806986973937086,Over,0.04722794789574834,Soil
+Virome,other,0.7766649194373363,Over,0.999999999999896,Soil
+Virome,connector,9.737957430474025e-4,Over,0.006491971620316017,Soil
+Virome,integration and excision,0.35634620329021316,Over,0.7918804517560293,Soil
+Virome,transcription regulation,0.4222873900293257,Over,0.8445747800586514,Soil
+Virome,unknown function,1.0403507693725185e-13,Under,2.0807015387450368e-12,Soil
+Virome,head and packaging,0.9999999999977907,Under,0.999999999999896,Soil
+Virome,tail,0.9980842440277111,Under,0.999999999999896,Soil
+Virome,lysis,0.9750647619158592,Under,0.999999999999896,Soil
+Virome,"DNA, RNA and nucleotide metabolism",0.9510332469393299,Under,0.999999999999896,Soil
+Virome,"moron, auxiliary metabolic gene and host takeover",0.988193013026063,Under,0.999999999999896,Soil
+Virome,other,0.2233350805626637,Under,0.5583377014066593,Soil
+Virome,connector,0.9990262042569527,Under,0.999999999999896,Soil
+Virome,integration and excision,0.6436537967097868,Under,0.999999999999896,Soil
+Virome,transcription regulation,0.5777126099706743,Under,0.999999999999896,Soil
+Mixed MG,unknown function,3.004236657286867e-14,Over,3.004236657286867e-13,Soil
+Mixed MG,head and packaging,0.9999999999867464,Over,1,Soil
+Mixed MG,tail,0.994239737443209,Over,1,Soil
+Mixed MG,lysis,0.8813530303376365,Over,1,Soil
+Mixed MG,"DNA, RNA and nucleotide metabolism",0.9079817077985275,Over,1,Soil
+Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.9356800085852479,Over,1,Soil
+Mixed MG,other,0.09166309798748379,Over,0.23004573050368127,Soil
+Mixed MG,connector,0.9881930130260629,Over,1,Soil
+Mixed MG,integration and excision,0.2989951512046999,Over,0.5979903024093998,Soil
+Mixed MG,transcription regulation,0,Over,0,Soil
+Mixed MG,unknown function,0.99999999999997,Under,1,Soil
+Mixed MG,head and packaging,1.3253689453225518e-11,Under,8.835792968817012e-11,Soil
+Mixed MG,tail,0.005760262556791007,Under,0.028801312783955035,Soil
+Mixed MG,lysis,0.11864696966236353,Under,0.26365993258303005,Soil
+Mixed MG,"DNA, RNA and nucleotide metabolism",0.0920182922014725,Under,0.23004573050368127,Soil
+Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.06431999141475213,Under,0.2143999713825071,Soil
+Mixed MG,other,0.9083369020125163,Under,1,Soil
+Mixed MG,connector,0.011806986973937091,Under,0.047227947895748364,Soil
+Mixed MG,integration and excision,0.7010048487953001,Under,1,Soil
+Mixed MG,transcription regulation,1,Under,1,Soil

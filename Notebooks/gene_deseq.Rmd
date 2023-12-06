@@ -1,0 +1,580 @@
+---
+title: "Figure 5, Table S2, Table S3"
+author: "James C. Kosmopoulos"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+# Load packages
+```{r load-packages, warning=FALSE}
+library(tidyverse); packageVersion("tidyverse")
+library(DESeq2); packageVersion("DESeq2")
+library(ggrepel); packageVersion("ggrepel")
+library(RColorBrewer); packageVersion("RColorBrewer")
+library(ggforce); packageVersion("ggforce")
+```
+
+# Load data
+```{r load-data}
+counts.gut <- readRDS('../Data/gene_counts_human_gut.RDS')
+counts.fw <- readRDS('../Data/gene_counts_freshwater.RDS')
+counts.mar <- readRDS('../Data/gene_counts_marine.RDS')
+counts.soil <- readRDS('../Data/gene_counts_soil.RDS')
+metadata <- readRDS("../Data/TableS1.RDS")
+metadata <- metadata[, 1:4]
+colnames(metadata) <- c("Sample", "Sample.source", "Environment", "Method")
+rownames(metadata) <- metadata$Sample
+metadata.gut <- subset(metadata, Environment=="Human gut")
+metadata.fw <- subset(metadata, Environment=="Freshwater")
+metadata.mar <- subset(metadata, Environment=="Marine")
+metadata.soil <- subset(metadata, Environment=="Soil")
+```
+
+# Creating a DESeq2 object and normalizing counts
+## Make sure that the order of column names in the counts table is the same as the order of rownames for the metadata
+```{r xform-metadata}
+# reorder metadata's columns based on row order of the counts  
+metadata.gut <- metadata.gut[colnames(counts.gut), ]
+all(colnames(counts.gut) == rownames(metadata.gut))
+metadata.gut
+metadata.fw <- metadata.fw[colnames(counts.fw), ]
+all(colnames(counts.fw) == rownames(metadata.fw))
+metadata.mar <- metadata.mar[colnames(counts.mar), ]
+all(colnames(counts.mar) == rownames(metadata.mar))
+metadata.mar
+metadata.soil <- metadata.soil[colnames(counts.soil), ]
+all(colnames(counts.soil) == rownames(metadata.soil))
+metadata.soil
+```
+
+## Make DESeq objects
+### Human gut
+```{r dds-gut}
+dds.gut <- DESeqDataSetFromMatrix(countData=counts.gut,
+                                  colData=metadata.gut,
+                                  design= ~Sample.source + Method)
+dds.gut
+```
+
+### Freshwater
+```{r dds-fw}
+dds.fw <- DESeqDataSetFromMatrix(countData=counts.fw,
+                                  colData=metadata.fw,
+                                  design= ~Sample.source + Method)
+dds.fw
+```
+
+### Marine
+```{r dds-mar}
+dds.mar <- DESeqDataSetFromMatrix(countData=counts.mar,
+                                  colData=metadata.mar,
+                                  design= ~Sample.source + Method)
+dds.mar
+```
+
+### Soil
+```{r dds-soil}
+dds.soil <- DESeqDataSetFromMatrix(countData=counts.soil,
+                                  colData=metadata.soil,
+                                  design= ~Sample.source + Method)
+dds.soil
+```
+
+# Differential abundance (DA)
+## DA genes: human gut samples
+```{r da-gut}
+dds.gut <- DESeq(dds.gut, test="Wald")
+resultsNames(dds.gut)
+```
+
+### Get results from virome vs metagenome contrast
+```{r results-gut}
+res.gut.vir.mg <- results(dds.gut, contrast = c("Method", "Virome", "Mixed MG"), alpha = 0.05) # Baseline is metagenome
+head(res.gut.vir.mg  %>% as.data.frame())
+```
+
+### Shrunken log2 foldchanges (LFC)
+
+```{r lfcshrink-gut}
+res.gut.vir.mg.unshrunken <- res.gut.vir.mg # Save the unshrunken results to compare
+res.gut.vir.mg <- lfcShrink(dds.gut, coef="Method_Virome_vs_Mixed.MG")
+```
+
+### Summarize results
+```{r summarize-gut}
+summary(res.gut.vir.mg, alpha = 0.05)
+```
+
+### Save results
+```{r save-gut}
+res.gut.vir.mg_tb <- res.gut.vir.mg %>%
+  as.data.frame() %>%
+  rownames_to_column(var="Gene") %>% 
+  as_tibble()
+head(res.gut.vir.mg_tb)
+```
+
+### Extract significant results
+```{r significant-gut}
+sig.res.gut.vir.mg <- res.gut.vir.mg_tb %>% filter(padj < 0.05)
+head(sig.res.gut.vir.mg)
+nrow(sig.res.gut.vir.mg)
+```
+
+### Set p-value and fold change criteria
+```{r lfc-cutoff-gut}
+lfc.cutoff <- 0.58 # We are working with log2 fold changes so 0.58 translates to an actual fold change of 1.5
+res.gut.vir.mg_tb <- res.gut.vir.mg_tb %>% mutate(threshold_ViromeVsMetagenome = padj < 0.05 & abs(log2FoldChange) >= lfc.cutoff)
+```
+
+### Make labels for the genes meeting the cutoff
+```{r label-lfc-gut}
+res.gut.vir.mg_tb$label <- res.gut.vir.mg_tb$Gene
+res.gut.vir.mg_tb <- res.gut.vir.mg_tb %>% mutate(label = case_when(threshold_ViromeVsMetagenome == TRUE ~ c(label, NULL)))
+res.gut.vir.mg_tb <- res.gut.vir.mg_tb %>% mutate(Enrichment = case_when(
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange < 0) ~ "Mixed MG",
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange > 0) ~ "Virome",
+  (threshold_ViromeVsMetagenome == FALSE | is.na(threshold_ViromeVsMetagenome) == TRUE) ~ "Not different")
+  )
+res.gut.vir.mg_tb$Enrichment <- factor(res.gut.vir.mg_tb$Enrichment, levels = c("Mixed MG", "Virome", "Not different"))
+```
+
+### Volcano plot
+```{r volcano-gut}
+volcano.gut.vir.mg <- ggplot(res.gut.vir.mg_tb, aes(x = log2FoldChange, y = -log10(padj))) +
+                              geom_point(aes(color = Enrichment)) +
+                              scale_color_manual(name= "Enrichment", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5", "Not different" = "grey")) +
+                              xlab(expression(log[2]~fold~change)) + 
+                              ylab(expression("-"*log[10]~adjusted~"p-"*value)) +
+                              theme_linedraw() +
+                              ggtitle("Human gut viral genes: Virome vs Metagenome") +
+                              theme(legend.position = "right", plot.title = element_text(size = 12))
+volcano.gut.vir.mg
+```
+
+### Re-plot without extreme values
+```{r volcano-gut-no-extreme}
+volcano.gut.vir.mg.no.extreme <- volcano.gut.vir.mg + xlim(-2e-5, 2e-5)
+volcano.gut.vir.mg.no.extreme
+```
+
+## DA genes: freshwater samples
+```{r da-freshwater}
+dds.fw <- DESeq(dds.fw, test="Wald")
+resultsNames(dds.fw)
+```
+
+### Get results from virome vs metagenome contrast
+```{r results-freshwater}
+res.fw.vir.mg <- results(dds.fw, contrast = c("Method", "Virome", "Mixed MG"), alpha = 0.05) # Baseline is metagenome
+head(res.fw.vir.mg  %>% as.data.frame())
+```
+
+### Shrunken log2 foldchanges (LFC)
+```{r lfc-shrink-freshwater}
+res.fw.vir.mg.unshrunken <- res.fw.vir.mg # Save the unshrunken results to compare
+res.fw.vir.mg <- lfcShrink(dds.fw, coef="Method_Virome_vs_Mixed.MG")
+res.fw.vir.mg
+```
+
+### Summarize results
+```{r summarize-freshwater}
+summary(res.fw.vir.mg, alpha = 0.05)
+```
+
+### Save results
+```{r save-results-freshwater}
+res.fw.vir.mg_tb <- res.fw.vir.mg %>%
+  as.data.frame() %>%
+  rownames_to_column(var="Gene") %>% 
+  as_tibble()
+head(res.fw.vir.mg_tb)
+```
+
+### Extract significant results
+```{r significant-freshwater}
+sig.res.fw.vir.mg <- res.fw.vir.mg_tb %>% filter(padj < 0.05)
+head(sig.res.fw.vir.mg)
+nrow(sig.res.fw.vir.mg)
+```
+
+### Set p-value and fold change criteria
+```{r lfc-cutoff-freshwater}
+res.fw.vir.mg_tb <- res.fw.vir.mg_tb %>% mutate(threshold_ViromeVsMetagenome = padj < 0.05 & abs(log2FoldChange) >= lfc.cutoff)
+```
+
+### Make labels for the genes meeting the cutoff
+```{r labels-freshwater}
+res.fw.vir.mg_tb$label <- res.fw.vir.mg_tb$Gene
+res.fw.vir.mg_tb <- res.fw.vir.mg_tb %>% mutate(label = case_when(threshold_ViromeVsMetagenome == TRUE ~ c(label, NULL)))
+nrow(res.fw.vir.mg_tb[res.fw.vir.mg_tb$threshold_ViromeVsMetagenome == TRUE, ])
+res.fw.vir.mg_tb <- res.fw.vir.mg_tb %>% mutate(Enrichment = case_when(
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange < 0) ~ "Mixed MG",
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange > 0) ~ "Virome",
+  (threshold_ViromeVsMetagenome == FALSE | is.na(threshold_ViromeVsMetagenome) == TRUE) ~ "Not different")
+  )
+res.fw.vir.mg_tb$Enrichment <- factor(res.fw.vir.mg_tb$Enrichment, levels = c("Mixed MG", "Virome", "Not different"))
+```
+
+### Volcano plot
+```{r volcano-freshwater}
+volcano.fw.vir.mg <- ggplot(res.fw.vir.mg_tb, aes(x = log2FoldChange, y = -log10(padj))) +
+                              geom_point(aes(color = Enrichment)) +
+                              scale_color_manual(name= "Enrichment", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5", "Not different" = "grey")) +
+                              xlab(expression(log[2]~fold~change)) + 
+                              ylab(expression("-"*log[10]~adjusted~"p-"*value)) +
+                              theme_linedraw() +
+                              ggtitle("Freshwater viral genes: Virome vs Metagenome") +
+                              theme(legend.position = "right", plot.title = element_text(size = 12))
+volcano.fw.vir.mg
+```
+
+## DA genes: marine samples
+```{r da-marine}
+dds.mar <- DESeq(dds.mar, test="Wald")
+resultsNames(dds.mar)
+```
+
+### Get results from virome vs metagenome contrast
+```{r results-marine}
+res.mar.vir.mg <- results(dds.mar, contrast = c("Method", "Virome", "Mixed MG"), alpha = 0.05) # Baseline is metagenome
+head(res.mar.vir.mg  %>% as.data.frame())
+```
+
+### Shrunken log2 foldchanges (LFC)
+```{r lfc-shrink-marine}
+res.mar.vir.mg.unshrunken <- res.mar.vir.mg # Save the unshrunken results to compare
+res.mar.vir.mg <- lfcShrink(dds.mar, coef="Method_Virome_vs_Mixed.MG")
+res.mar.vir.mg
+```
+
+### Summarize results
+```{r summarize-results-marine}
+summary(res.mar.vir.mg, alpha = 0.05)
+```
+
+### Save results
+```{r save-results-marine}
+res.mar.vir.mg_tb <- res.mar.vir.mg %>%
+  as.data.frame() %>%
+  rownames_to_column(var="Gene") %>% 
+  as_tibble()
+head(res.mar.vir.mg_tb)
+```
+
+### Extract significant results
+```{r significant-results-marine}
+sig.res.mar.vir.mg <- res.mar.vir.mg_tb %>% filter(padj < 0.05)
+head(sig.res.mar.vir.mg)
+nrow(sig.res.mar.vir.mg)
+```
+
+### Set p-value and fold change criteria
+```{r lfc-cutoff-marine}
+res.mar.vir.mg_tb <- res.mar.vir.mg_tb %>% mutate(threshold_ViromeVsMetagenome = padj < 0.05 & abs(log2FoldChange) >= lfc.cutoff)
+```
+
+### Make labels for the genes meeting the cutoff
+```{r labels-marine}
+res.mar.vir.mg_tb$label <- res.mar.vir.mg_tb$Gene
+res.mar.vir.mg_tb <- res.mar.vir.mg_tb %>% mutate(label = case_when(threshold_ViromeVsMetagenome == TRUE ~ c(label, NULL)))
+nrow(res.mar.vir.mg_tb[res.mar.vir.mg_tb$threshold_ViromeVsMetagenome == TRUE, ])
+res.mar.vir.mg_tb <- res.mar.vir.mg_tb %>% mutate(Enrichment = case_when(
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange < 0) ~ "Mixed MG",
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange > 0) ~ "Virome",
+  (threshold_ViromeVsMetagenome == FALSE | is.na(threshold_ViromeVsMetagenome) == TRUE) ~ "Not different")
+  )
+res.mar.vir.mg_tb$Enrichment <- factor(res.mar.vir.mg_tb$Enrichment, levels = c("Mixed MG", "Virome", "Not different"))
+```
+
+### Volcano plot
+```{r volcano-marine}
+volcano.mar.vir.mg <- ggplot(res.mar.vir.mg_tb, aes(x = log2FoldChange, y = -log10(padj))) +
+                              geom_point(aes(color = Enrichment)) +
+                              scale_color_manual(name= "Enrichment", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5", "Not different" = "grey")) +
+                              xlab(expression(log[2]~fold~change)) + 
+                              ylab(expression("-"*log[10]~adjusted~"p-"*value)) +
+                              theme_linedraw() +
+                              ggtitle("Marine viral genes: Virome vs Metagenome") +
+                              theme(legend.position = "right", plot.title = element_text(size = 12))
+volcano.mar.vir.mg
+```
+
+## DA genes: soil samples
+```{r da-soil}
+dds.soil <- DESeq(dds.soil, test="Wald")
+resultsNames(dds.soil)
+```
+
+### Get results from virome vs metagenome contrast
+```{r results-soil}
+res.soil.vir.mg <- results(dds.soil, contrast = c("Method", "Virome", "Mixed MG"), alpha = 0.05) # Baseline is metagenome
+head(res.soil.vir.mg  %>% as.data.frame())
+```
+
+### Shrunken log2 foldchanges (LFC)
+```{r lfc-shrink-soil}
+res.soil.vir.mg.unshrunken <- res.soil.vir.mg # Save the unshrunken results to compare
+res.soil.vir.mg <- lfcShrink(dds.soil, coef="Method_Virome_vs_Mixed.MG")
+res.soil.vir.mg
+```
+
+### Summarize results
+```{r summarize-results-soil}
+summary(res.soil.vir.mg, alpha = 0.05)
+```
+
+### Save results
+```{r save-results-soil}
+res.soil.vir.mg_tb <- res.soil.vir.mg %>%
+  as.data.frame() %>%
+  rownames_to_column(var="Gene") %>% 
+  as_tibble()
+head(res.soil.vir.mg_tb)
+```
+
+### Extract significant results
+```{r significant-results-soil}
+sig.res.soil.vir.mg <- res.soil.vir.mg_tb %>% filter(padj < 0.05)
+head(sig.res.soil.vir.mg)
+nrow(sig.res.soil.vir.mg)
+```
+
+### Set p-value and fold change criteria
+```{r lfc-cutoff-soil}
+res.soil.vir.mg_tb <- res.soil.vir.mg_tb %>% mutate(threshold_ViromeVsMetagenome = padj < 0.05 & abs(log2FoldChange) >= lfc.cutoff)
+```
+
+### Make labels for the genes meeting the cutoff
+```{r labels-soil}
+res.soil.vir.mg_tb$label <- res.soil.vir.mg_tb$Gene
+res.soil.vir.mg_tb <- res.soil.vir.mg_tb %>% mutate(label = case_when(threshold_ViromeVsMetagenome == TRUE ~ c(label, NULL)))
+nrow(res.soil.vir.mg_tb[res.soil.vir.mg_tb$threshold_ViromeVsMetagenome == TRUE, ])
+res.soil.vir.mg_tb <- res.soil.vir.mg_tb %>% mutate(Enrichment = case_when(
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange < 0) ~ "Mixed MG",
+  (threshold_ViromeVsMetagenome == TRUE & log2FoldChange > 0) ~ "Virome",
+  (threshold_ViromeVsMetagenome == FALSE | is.na(threshold_ViromeVsMetagenome) == TRUE) ~ "Not different")
+  )
+res.soil.vir.mg_tb$Enrichment <- factor(res.soil.vir.mg_tb$Enrichment, levels = c("Mixed MG", "Virome", "Not different"))
+```
+
+### Volcano plot
+```{r volcano-soil}
+volcano.soil.vir.mg <- ggplot(res.soil.vir.mg_tb, aes(x = log2FoldChange, y = -log10(padj))) +
+                              geom_point(aes(color = Enrichment)) +
+                              scale_color_manual(name= "Enrichment", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5", "Not different" = "grey")) +
+                              xlab(expression(log[2]~fold~change)) + 
+                              ylab(expression("-"*log[10]~adjusted~"p-"*value)) +
+                              theme_linedraw() +
+                              ggtitle("Soil viral genes: Virome vs Metagenome") +
+                              theme(legend.position = "right", plot.title = element_text(size = 12))
+volcano.soil.vir.mg
+```
+
+## Make combined figure of volcano plots
+### Combine dataframes
+```{r combine-results}
+res.gut.vir.mg_tb$Environment <- "Human gut"
+res.fw.vir.mg_tb$Environment <- "Freshwater"
+res.mar.vir.mg_tb$Environment <- "Marine"
+res.soil.vir.mg_tb$Environment <- "Soil"
+res.all.vir.mg_tb <- rbind(res.gut.vir.mg_tb, res.fw.vir.mg_tb, res.mar.vir.mg_tb, res.soil.vir.mg_tb)
+res.all.vir.mg_tb$Environment <- factor(res.all.vir.mg_tb$Environment, levels = c("Human gut", "Freshwater", "Marine", "Soil"))
+head(res.all.vir.mg_tb)
+unique(res.all.vir.mg_tb$Environment)
+res.all.vir.mg_tb$Enrichment <- as.character(res.all.vir.mg_tb$Enrichment)
+res.all.vir.mg_tb$Enrichment[res.all.vir.mg_tb$Enrichment == "Not different"] <- "Not significant"
+res.all.vir.mg_tb$Enrichment <- factor(res.all.vir.mg_tb$Enrichment, levels=c("Mixed MG", "Virome", "Not significant"))
+```
+
+### Plot
+```{r Fig5A}
+volcano.all.vir.mg <- ggplot(res.all.vir.mg_tb, aes(x = log2FoldChange, y = -log10(padj))) +
+                              facet_wrap(~Environment, ncol = 2, scales = "free") +
+                              geom_point(aes(fill = Enrichment), shape=21, color="black", size = 2, stroke = 0.25) +
+                              scale_fill_manual(name= "Enrichment", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5", "Not significant" = "grey")) +
+                              guides(color = guide_legend(override.aes = list(size=20))) +
+                              xlab(expression(log[2]~fold~change)) + 
+                              ylab(expression("-"*log[10]~adjusted~"p-"*value)) +
+                              theme_linedraw() +
+                              theme(legend.position = "right",
+                                    plot.title = element_text(size = 12),
+                                    text = element_text(size = 12)
+                                    ) +
+                              guides(fill = guide_legend(override.aes = list(size = 2)))
+volcano.all.vir.mg
+```
+
+# Gene functions
+## Load data
+```{r load-pharokka-annots}
+annot.pharokka.gut <- readRDS("../Data/pharokka_human_gut_genes.RDS")
+annot.pharokka.fw <- readRDS("../Data/pharokka_freshwater_genes.RDS")
+annot.pharokka.mar <- readRDS("../Data/pharokka_marine_genes.RDS")
+annot.pharokka.soil <- readRDS("../Data/pharokka_soil_genes.RDS")
+annot.pharokka.all <- rbind(annot.pharokka.gut, annot.pharokka.fw, annot.pharokka.mar, annot.pharokka.soil)
+```
+
+## Merge with all DESeq2 results and save as Table S2
+```{r TableS2}
+res.all.vir.mg_tb <- merge(res.all.vir.mg_tb, annot.pharokka.all, all.x = TRUE, all.y = FALSE, by.x = "Gene", by.y = "gene")
+tableS2 <- res.all.vir.mg_tb[, c("Gene", "baseMean", "log2FoldChange", "lfcSE", "pvalue", "padj", "threshold_ViromeVsMetagenome", "Enrichment", "Environment", "annot", "category")]
+tableS2$category = tableS2$category %>% replace_na('unknown function')
+head(tableS2)
+write_csv(tableS2, file="../Tables/TableS2.csv")
+```
+
+# Plot virome or metagenome enriched genes colored by PHROG
+```{r Fig5B}
+plot.cat <- ggplot(data=tableS2 %>%
+                     filter(Enrichment != "Not significant") %>%
+                     mutate(category = ifelse(
+                     category == "moron, auxiliary metabolic gene and host takeover","moron, auxiliary metabolic\ngene, and host takeover",category)) %>%
+                     mutate(category = ifelse(
+                     category == "DNA, RNA and nucleotide metabolism","DNA, RNA, and\nnucleotide metabolism", category)), aes(x=Enrichment)) +
+  geom_bar(position = "fill", aes(fill = category), color="black") +
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) +  # Convert y-axis labels to percentages
+  facet_zoom(ylim = c(0.84, 1.007)) +
+  labs(y = "Relative abundance", x="Enrichment") +
+  scale_fill_manual(name = "PHROG category",
+                    values=c((rev(colorRampPalette(brewer.pal(8, "Blues"))(length(unique(tableS2$category))-1))), "#c9c9c9")
+                    ) +
+  theme_linedraw() +
+  theme(text = element_text(size = 12),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right",
+        panel.grid.major.x = element_blank())
+plot.cat
+```
+
+## Merge with significant results
+```{r merge-dataframes-sig}
+sig.genes.gut.annot.phrog <- merge(sig.res.gut.vir.mg, annot.pharokka.gut, all.x = TRUE, by.x = "Gene", by.y = "gene")
+sig.genes.gut.annot.phrog <- merge(sig.genes.gut.annot.phrog, res.all.vir.mg_tb[, c("Gene", "Enrichment")], all.x = TRUE, by = "Gene")
+sig.genes.gut.annot.phrog$Environment <- "Human gut"
+sig.genes.fw.annot.phrog <- merge(sig.res.fw.vir.mg, annot.pharokka.fw, all.x = TRUE, by.x = "Gene", by.y = "gene")
+sig.genes.fw.annot.phrog <- merge(sig.genes.fw.annot.phrog, res.all.vir.mg_tb[, c("Gene", "Enrichment")], all.x = TRUE, by = "Gene")
+sig.genes.fw.annot.phrog$Environment <- "Freshwater"
+sig.genes.mar.annot.phrog <- merge(sig.res.mar.vir.mg, annot.pharokka.mar, all.x = TRUE, by.x = "Gene", by.y = "gene")
+sig.genes.mar.annot.phrog <- merge(sig.genes.mar.annot.phrog, res.all.vir.mg_tb[, c("Gene", "Enrichment")], all.x = TRUE, by = "Gene")
+sig.genes.mar.annot.phrog$Environment <- "Marine"
+sig.genes.soil.annot.phrog <- merge(sig.res.soil.vir.mg, annot.pharokka.soil, all.x = TRUE, by.x = "Gene", by.y = "gene")
+sig.genes.soil.annot.phrog <- merge(sig.genes.soil.annot.phrog, res.all.vir.mg_tb[, c("Gene", "Enrichment")], all.x = TRUE, by = "Gene")
+sig.genes.soil.annot.phrog$Environment <- "Soil"
+sig.genes.all.annot.phrog <- rbind(sig.genes.gut.annot.phrog, sig.genes.fw.annot.phrog, sig.genes.mar.annot.phrog, sig.genes.soil.annot.phrog)
+sig.genes.all.annot.phrog <- sig.genes.all.annot.phrog %>% mutate(Virus = sub("__.*", "", Gene))
+
+sig.genes.all.annot.phrog$category[is.na(sig.genes.all.annot.phrog$category)] <- "unknown function"
+
+head(sig.genes.all.annot.phrog)
+```
+
+## Perform hypergeometric tests to assess under/over reprsentation of PHROG categories
+This code was adapted from R code written by Christian Santos-Medellin from the github project [WetupViromes](https://github.com/cmsantosm/SpatioTemporalViromes) from the notebook [vn_mag_trends.Rmd](https://github.com/cmsantosm/WetupViromes/blob/b517069489a6faf0d695aa310b2d632ee0471f34/Notebooks/vn_mag_trends.Rmd#L297) for the hypergeometric tests below.
+
+```{r hypergeometric-tests-phrogs}
+hyper_test_function <- function(df, env){
+  df.filt <- df %>%
+    filter(Enrichment != "Not significant") %>% 
+    filter(Environment == env) %>%
+    group_by(category) %>% 
+    mutate(CategorySize = n()) %>% 
+    ungroup()
+
+  #Get the ids of categories that will be used in the tests
+  df.ids <- df.filt$category %>% unique()
+  df.universe <- df.filt$Gene %>% unique()
+
+  enrichment.list <- list()
+  for(response in unique(df.filt$Enrichment)){
+    sig.response <- filter(df.filt, Enrichment == response)$Gene %>% unique()
+    hgt.over.list <- list()
+    hgt.under.list <- list()
+    for(class in df.ids){
+      members <- filter(df.filt, category == class)$Gene
+      cluster.positive <- sum(sig.response %in% members)
+      universe.positive <- sum(df.universe %in% members)
+      universe.negative <- sum(!df.universe %in% members)
+      cluster.size <- length(sig.response)
+      hgt.over.list[[class]] <- phyper(cluster.positive, universe.positive, universe.negative, cluster.size, lower.tail = F)
+      hgt.under.list[[class]] <- phyper(cluster.positive, universe.positive, universe.negative, cluster.size, lower.tail = T)
+    }
+    hgt.over <- plyr::ldply(hgt.over.list, function(x) x)
+    names(hgt.over) <- c("Class", "pval")
+    hgt.over <- mutate(hgt.over, Test = "Over")
+    hgt.under <- plyr::ldply(hgt.under.list, function(x) x)
+    names(hgt.under) <- c("Class", "pval")
+    hgt.under <- mutate(hgt.under, Test = "Under")
+    hgt <- rbind(hgt.over, hgt.under)
+    enrichment.list[[response]] <- hgt
+  }
+  
+  enrichment <- plyr::ldply(enrichment.list, function(x) x) %>% 
+    dplyr::rename("Enrichment" = ".id") %>% 
+    ungroup() %>% 
+    group_by(Enrichment) %>% 
+    mutate(padj = p.adjust(pval, method="fdr")) 
+  
+  return(enrichment)
+}
+```
+
+## Run tests and save results as Table S3
+```{r TableS3}
+hyper_results <- list()
+for(env in c("Freshwater", "Marine", "Soil")){
+  results <- hyper_test_function(sig.genes.all.annot.phrog, env)
+  results$Environment <- env
+  hyper_results[[env]] <- results
+}
+tableS3 <- do.call(rbind, hyper_results)
+write_csv(tableS3, file="../Tables/TableS3.csv")
+head(tableS3)
+```
+
+## Plot results from hypergeometric tests
+```{r Fig5C}
+phrog.hgt.p <- tableS3 %>%
+  mutate(Class = ifelse(Class == "moron, auxiliary metabolic gene and host takeover","moron, auxiliary metabolic\ngene, and host takeover",Class)) %>%
+  mutate(Class = ifelse(Class == "DNA, RNA and nucleotide metabolism","DNA, RNA, and\nnucleotide metabolism", Class)) %>%
+  filter(is.na(Class) == F) %>% # Remove NA description predictions
+  filter(Enrichment != "Not significant") %>% # Remove not different enrichment
+  filter(padj < 0.05) %>%
+  mutate(Test2 = ifelse(Test == "Over", "Overrepresentation", "Underrepresentation")) %>% 
+  ggplot(aes(Enrichment, Class, fill = Test2, shape = Test2)) +
+  geom_point(size = 4) +
+  facet_wrap(~Environment, ncol = 4) +
+  scale_fill_manual(name = "PHROG category\nmembership", values = RColorBrewer::brewer.pal(3, "Set1")[c(2,1)]) +
+  scale_shape_manual(name = "PHROG category\nmembership", values = c(24,25)) +
+  guides(fill=guide_legend(nrow=2, byrow=TRUE)) +
+  scale_y_discrete(position = "right") +
+  ylab("PHROG category") +
+  xlab("Enrichment") +
+  theme_linedraw() +
+  theme(text = element_text(size = 12),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title.y = element_blank(),
+        legend.position = "bottom")
+phrog.hgt.p
+```
+
+# Combine volcano plot, phrog category plot, and phrog representation plot into Figure 5
+```{r fig.height=8.5, fig.width=11}
+Fig5 <- cowplot::plot_grid(volcano.all.vir.mg,
+        cowplot::plot_grid(plot.cat,
+                           phrog.hgt.p,
+                           ncol=2, align = "v", axis = "bl",
+                           labels = c("", "C"), label_size = 16, label_fontfamily = "sans",
+                           rel_widths = c(1,1)
+                           ),
+        nrow=2, align = "v", axis = "l",
+        rel_heights=c(1,1),
+        labels = c("A", "B"), label_size = 16, label_fontfamily = "sans"
+                          )
+Fig5
+ggsave("../Plots/Fig5.png", plot=Fig5, device = "png", width = 11, height = 8.5, units = "in", dpi = 600, scale = 1)
+```
