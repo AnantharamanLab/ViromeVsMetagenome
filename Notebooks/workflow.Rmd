@@ -719,8 +719,6 @@ samtools depth map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485172__vRh
 samtools depth map_species_vmags/mapfiles/individual/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.bam > vmag_coverage/Ga0485184_to_Ga0485184__vRhyme_unbinned_566.depth_per_base.cov
 ```
 
-The four resulting files were manually combined into one table with an added column specifying the read sample.
-
 ## Run Pharokka on each vMAG to obtain genome annotations
 Requires Pharokka v1.4.1
 
