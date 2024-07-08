@@ -1,7 +1,7 @@
 Figure 2, Figure S1, Figure S2, Figure S3
 ================
 James C. Kosmopoulos
-2023-12-05
+2024-07-08
 
 # Load packages
 
@@ -21,7 +21,7 @@ library(tidyverse); packageVersion("tidyverse")
 library(cowplot); packageVersion("cowplot")
 ```
 
-    ## [1] '1.1.1'
+    ## [1] '1.1.3'
 
 # Load data
 
@@ -42,12 +42,12 @@ plot.seq.depth.paired <- ggpaired(data_reform,
                                   add = "jitter",
                                   facet.by ="env2",
                                   color = "method2", line.color = "gray", line.size = 0) +
-                        scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                        scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
                             facet_wrap(. ~ env2, ncol = 4, scales="free_y") +
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                             ylab("Sequencing depth\n(millions of filtered read pairs)") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..),label.x = 1.5, paired = T)
 plot.seq.depth.paired
 ```
@@ -64,13 +64,13 @@ plot.recruit.paired <- ggpaired(data_reform,
                                   add = "jitter",
                                   facet.by ="env2",
                                   color = "method2", line.color = "gray", line.size = 0) +
-                            scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                            scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
                             facet_wrap(. ~ env2, ncol = 4) +
                             ylim(0,100) + 
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                             ylab("Read recruitment %\n(contigs > 10 kb)") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..),label.x = 1.5, paired = T)
 plot.recruit.paired
 ```
@@ -87,13 +87,13 @@ plot.viral.reads.enrich.paired <- ggpaired(data_reform,
                                   add = "jitter",
                                   facet.by ="env2",
                                   color = "method2", line.color = "gray", line.size = 0) +
-                            scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                            scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
                             facet_wrap(. ~ env2, ncol = 4) +
                             ylim(0,100) +
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust=1)) +
                             ylab("Viral read enrichment\n(% filtered pairs)") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..),label.x = 1.5, paired = T)
 plot.viral.reads.enrich.paired
 ```
@@ -110,13 +110,13 @@ plot.viral.contigs.enrich.paired <- ggpaired(data_reform,
                                   add = "jitter",
                                   facet.by ="env2",
                                   color = "method2", line.color = "gray", line.size = 0) +
-                            scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                            scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
                             facet_wrap(. ~ env2, ncol = 4) +
                             ylim(0,100) +
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                             ylab("Viral contig enrichment\n(% contigs > 10 kb)") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..),label.x = 1.5, paired = T)
 plot.viral.contigs.enrich.paired
 ```
@@ -146,12 +146,12 @@ FigS1 <- ggpaired(contig_stats_melt,
                                   add = "jitter",
                                   facet.by = c("env2", "variable"),
                                   color = "method2", line.color = "gray", line.size = 0) +
-                            scale_color_manual(name= "Method", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
+                            scale_color_manual(name= "Sample type", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
                             facet_wrap(env2 ~ variable, ncol = 4, scales="free_y") +
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank()) +
                             ylab("Value") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..),label.x = 1.5, paired = T)
 FigS1
 ```
@@ -174,12 +174,12 @@ plot.viral_contigs.paired <- ggpaired(data_reform,
                                    add = "jitter",
                                    facet.by = "env2",
                                    color = "method2", line.color = "gray", line.size = 0) +
-                            scale_color_manual(name= "Method", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
+                            scale_color_manual(name= "Sample type", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
                             facet_wrap(. ~ env2, ncol = 4, scales="free_y") +
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                             ylab("Number of viral contigs\n(per 100M reads)") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..),label.x = 1.5, paired = T)
 plot.viral_contigs.paired
 ```
@@ -196,12 +196,12 @@ plot.VMAGs.paired <- ggpaired(data_reform,
                                    add = "jitter",
                                    facet.by = "env2",
                                    color = "method2", line.color = "gray", line.size = 0) +
-                            scale_color_manual(name= "Method", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
+                            scale_color_manual(name= "Sample type", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
                             facet_wrap(. ~ env2, ncol = 4, scales="free_y") +
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                             ylab("Number of viruses (vMAGs)\n(per 100M reads)") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..),label.x = 1.5, paired = T)
 plot.VMAGs.paired
 ```
@@ -221,8 +221,8 @@ plot.checkv.just_high.paired <- ggpaired(data_reform,
                         theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                         ylab('Number of CheckV "high-quality" vMAGs\n(per 100M reads)') +
-                        xlab("Method") +
-                        scale_color_manual(name= "Method", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
+                        xlab("Sample type") +
+                        scale_color_manual(name= "Sample type", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
                         facet_wrap(~env2, ncol=4, scales="free_y") +
                         stat_compare_means(aes(x = method2, label = ..p.signif..), label.x = 1.5, paired = T)
 plot.checkv.just_high.paired
@@ -240,12 +240,12 @@ plot.species.paired <- ggpaired(data_reform,
                                    add = "jitter",
                                    facet.by = "env2",
                                    color = "method2", line.color = "gray", line.size = 0) +
-                            scale_color_manual(name= "Method", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
+                            scale_color_manual(name= "Sample type", values = c("Mixed MG" = "#1E88E5", "Virome" = "#D81B60")) +
                             facet_wrap(. ~ env2, ncol = 4, scales="free_y") +
                             theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                             ylab("Number of viral species clusters\n(per 100M reads)") +
-                            xlab("Method") +
+                            xlab("Sample type") +
                             stat_compare_means(aes(x = method2, label = ..p.signif..), label.x = 1.5, paired = T)
 plot.species.paired
 ```
@@ -280,8 +280,8 @@ plot.lytic.paired <- ggpaired(data_reform,
                         theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                         ylab("Total lytic vMAGs\n(per 100M reads)") +
-                        xlab("Method") +
-                        scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                        xlab("Sample type") +
+                        scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
                         facet_wrap(~env2, ncol=4, scales="free_y") +
                         stat_compare_means(aes(x = method2, label = ..p.signif..), label.x = 1.5, paired = T)
 plot.lytic.paired
@@ -302,8 +302,8 @@ plot.lysogen.paired <- ggpaired(data_reform,
                         theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                         ylab("Total lysogenic vMAGs\n(per 100M reads)") +
-                        xlab("Method") +
-                        scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                        xlab("Sample type") +
+                        scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
                         facet_wrap(~env2, ncol=4, scales="free_y") +
                         stat_compare_means(aes(x = method2, label = ..p.signif..), label.x = 1.5, paired = T)
 plot.lysogen.paired
@@ -324,8 +324,8 @@ plot.prophage.paired <- ggpaired(data_reform,
                         theme_linedraw() +
                             theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
                         ylab("Total integrated prophage vMAGs\n(per 100M reads)") +
-                        xlab("Method") +
-                        scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                        xlab("Sample type") +
+                        scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
                         facet_wrap(~env2, ncol=4, scales="free_y") +
                         stat_compare_means(aes(x = method2, label = ..p.signif..), label.x = 1.5, paired = T)
 plot.prophage.paired

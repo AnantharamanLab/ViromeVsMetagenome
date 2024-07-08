@@ -1,5 +1,5 @@
 ---
-title: "Figure 4, Table S4, Table S5"
+title: "Table S2, Table S3, Table S4, Figure 4"
 author: "James C. Kosmopoulos"
 date: "`r Sys.Date()`"
 output: github_document
@@ -12,13 +12,13 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 ```
 
 # Load packages
-
 ```{r load-packages}
 library(tidyverse); packageVersion("tidyverse")
+library(reshape2); packageVersion("reshape2")
+library(ggpubr); packageVersion("ggpubr")
 library(ggforce); packageVersion("ggforce")
 library(gggenes); packageVersion("gggenes")
 ```
-
 
 # Load data and features
 ```{r load-data}
@@ -26,41 +26,74 @@ data_reform <- readRDS("../Data/stats_and_metadata.RDS")
 depth_per_base <- readRDS("../Data/depth_per_base.RDS")
 features <- readRDS("../Data/features_combined.RDS")
 rect <- readRDS("../Data/features_absent.RDS")
+breadths <- readRDS("../Data/breadths.RDS")
+```
+
+# Table S2
+```{r TableS2}
+tableS2 <- breadths %>%
+  group_by(sample_source, Genome) %>%
+  filter(all(c("Virome", "Mixed MG") %in% Method)) %>%
+  ungroup() %>%
+  mutate(Method = factor(Method, levels = c("Mixed MG", "Virome")))
+
+write_csv(tableS2, file="../Tables/TableS2.csv")
+head(tableS2)
+```
+
+# Table S3
+```{r TableS5}
+tableS3 <- features[ c("Genome", "contig",	"gene", "start", "stop", "start.relative",	"stop.relative", "frame", "phrog", "Method", "annot", "category")]
+tableS3$sample <- sub("__.*", "", tableS3$Genome) # add a sample column
+tableS3 <- tableS3[c(1, ncol(tableS3), 2:(ncol(tableS3)-1))] # move sample column to second position
+tableS3 <- merge(tableS3, data_reform[c("Sample", "Environment")], by.x = "sample", by.y = "Sample")
+col_order <- c("Genome", "sample", "Environment", setdiff(names(tableS3), c("Genome", "sample", "Environment")))
+tableS3 <- tableS3[col_order]
+colnames(tableS3) <- c("genome", "sample", "environment",	"contig",	"gene",	"start",	"stop",	"start relative",	"stop relative",	"frame",	"phrog",	"pharokka gene prediction method",	"phrog annot	phrog category")
+write_csv(tableS3, file="../Tables/TableS3.csv")
+head(tableS3)
 ```
 
 # Table S4
 ```{r TableS4}
-tableS4 <- features[ c("Genome", "contig",	"gene", "start", "stop", "start.relative",	"stop.relative", "frame", "phrog", "Method", "annot", "category")]
-tableS4$sample <- sub("__.*", "", tableS4$Genome) # add a sample column
-tableS4 <- tableS4[c(1, ncol(tableS4), 2:(ncol(tableS4)-1))] # move sample column to second position
-tableS4 <- merge(tableS4, data_reform[c("Sample", "Environment")], by.x = "sample", by.y = "Sample")
-col_order <- c("Genome", "sample", "Environment", setdiff(names(tableS4), c("Genome", "sample", "Environment")))
-tableS4 <- tableS4[col_order]
-colnames(tableS4) <- c("genome", "sample", "environment",	"contig",	"gene",	"start",	"stop",	"start relative",	"stop relative",	"frame",	"phrog",	"pharokka gene prediction method",	"phrog annot	phrog category")
+tableS4 <- depth_per_base[ c("Contig",	"Position",	"Depth",	"Relative.position",	"Read.sample",	"Read.sample.method",	"Genome.method",	"Genome")]
+reads_paired_Ga0485184 <- data_reform[which(data_reform$Sample == "Ga0485184"),]$Reads_paired_reads[1]
+reads_paired_Ga0485172 <- data_reform[which(data_reform$Sample == "Ga0485172"),]$Reads_paired_reads[1]
+tableS4$Filtered.read.pairs.in.sample <- ifelse(tableS4$Read.sample == "Ga0485184", 
+                                                reads_paired_Ga0485184, 
+                                                ifelse(tableS4$Read.sample == "Ga0485172", 
+                                                       reads_paired_Ga0485172, 
+                                                       NA))
+                             
+tableS4$Depth.per.100M.reads <- depth_per_base$Depth.per.100M.reads
+tableS4$Depth.normalized <- depth_per_base$Depth.normalized
+colnames(tableS4) <- c("Contig",	"Position",	"Depth",	"Relative position",	"Read sample",	"Read sample method",	"Genome method",	"Genome",	"Filtered read pairs in sample",	"Depth per 100M reads",	"Depth normalized")
 write_csv(tableS4, file="../Tables/TableS4.csv")
 head(tableS4)
 ```
 
-# Table S5
-```{r TableS5}
-tableS5 <- depth_per_base[ c("Contig",	"Position",	"Depth",	"Relative.position",	"Read.sample",	"Read.sample.method",	"Genome.method",	"Genome")]
-reads_paired_Ga0485184 <- data_reform[which(data_reform$Sample == "Ga0485184"),]$Reads_paired_reads[1]
-reads_paired_Ga0485172 <- data_reform[which(data_reform$Sample == "Ga0485172"),]$Reads_paired_reads[1]
-tableS5$Filtered.read.pairs.in.sample <- ifelse(tableS5$Read.sample == "Ga0485184", 
-                                                reads_paired_Ga0485184, 
-                                                ifelse(tableS5$Read.sample == "Ga0485172", 
-                                                       reads_paired_Ga0485172, 
-                                                       NA))
-                             
-tableS5$Depth.per.100M.reads <- depth_per_base$Depth.per.100M.reads
-tableS5$Depth.normalized <- depth_per_base$Depth.normalized
-colnames(tableS5) <- c("Contig",	"Position",	"Depth",	"Relative position",	"Read sample",	"Read sample method",	"Genome method",	"Genome",	"Filtered read pairs in sample",	"Depth per 100M reads",	"Depth normalized")
-write_csv(tableS5, file="../Tables/TableS5.csv")
-head(tableS5)
+# Figure 4
+## Figure 4A breadth of coverage differences using Table S2
+```{r Fig4A, fig.height=2.5, fig.width=6.5}
+plot.breadths <- ggplot(tableS2, aes(x=Method, y=Breadth)) +
+                          geom_boxplot(aes(color=Method), outlier.shape = NA) +
+                          scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+                          facet_wrap(. ~ Environment, ncol = 4) +
+                          theme_linedraw() +
+                          theme(legend.position = "none", panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45,  hjust=1)) +
+                          ylab("Genome Breadth\nof Coverage") +
+                          xlab("Sample Type") +
+                          ylim(0.75, 1.03) +
+                          stat_compare_means(aes(x = Method, label = ..p.signif..),
+                                   label.x = 1.5, label.y = 1.015, paired = T,
+                                   p.adjust.method = "bonferroni") +
+                          scale_y_continuous(limits=c(0.75, 1.03), labels = scales::percent)
+
+plot.breadths
 ```
 
-# Figure 4
-```{r Fig4, fig.height=4, fig.width=6.5}
+## Figure 4B example genome breadth of coverage differences
+```{r Fig4B, fig.height=4, fig.width=6.5}
 # Define the offset for assembly B
 offset_B <- 2789
 
@@ -77,7 +110,7 @@ ggenes <- ggplot() +
             aes(x=Relative.position, y=Depth.normalized, color=Read.sample.method)) +
   facet_grid(rows=vars(Genome.method), switch="both") +
   scale_y_continuous(sec.axis = sec_axis(~ . , name = "Genome assembly method", breaks = NULL, labels = NULL), position = "right",) +
-  scale_color_manual(name= "Read sample method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+  scale_color_manual(name= "Read sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
   theme_linedraw() +
   theme(legend.position = "bottom") +
   ylab(expression(log[10]~normalized~read~depth)) +
@@ -94,10 +127,21 @@ ggenes <- ggplot() +
     alpha = 1
   )
 ggenes
-ggsave("../Plots/Fig4.png", plot=ggenes, device = "png", width = 6.5, height = 4, units = "in", dpi = 600, scale = 1)
 ```
 
-**Note that this figure was later modified, manually, to add highlighted regions and coloring for a selection of genes of interest.**
+## Combine figs 4A and 4B
+```{r Fig4, fig.height=6.5, fig.width=6.5}
+Fig4 <- cowplot::plot_grid(plot.breadths, ggenes,
+                           nrow = 2, rel_heights = c(2.5, 4), label_x = -0.005,
+                           label_size=16, label_fontfamily= "sans", label_fontface = "bold", labels = "AUTO")
+Fig4
+```
 
+## Save the figure
+```{r save-fig4}
+ggsave("../Plots/Fig4.png", plot=Fig4, device = "png", width = 6.5, height = 6.5, units = "in", dpi = 600, scale = 1)
+```
+
+**Note that Figure 4B was later modified, manually, to add highlighted regions and coloring for a selection of genes of interest.**
 
 

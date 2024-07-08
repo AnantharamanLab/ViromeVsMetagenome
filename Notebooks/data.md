@@ -1,7 +1,7 @@
 Gather and Organize Data
 ================
 James C. Kosmopoulos
-2023-12-06
+2024-07-08
 
 # Load packages
 
@@ -134,12 +134,12 @@ head(data_reform)
     ## 5 80547.4  630 7579                  0               191      175
     ## 6 54327.8  312 2977                  0                65       60
     ##   species.cluster.no genus.cluster.no no.of.virus.taxonomy.info
-    ## 1                164              124                        54
-    ## 2                 65               58                        10
-    ## 3                126              102                        37
-    ## 4                 70               60                        22
-    ## 5                175              140                        49
-    ## 6                 60               52                         6
+    ## 1                147              124                        54
+    ## 2                 48               58                        10
+    ## 3                107              102                        37
+    ## 4                 56               60                        22
+    ## 5                146              140                        49
+    ## 6                 42               52                         6
     ##   no.of.virus.with.host.prediction lytic_scaff_no lytic_virus_no
     ## 1                                0             77              6
     ## 2                                0             36              0
@@ -267,12 +267,12 @@ head(data_reform)
     ## 5                       330.8799                                     0
     ## 6                       114.5724                                     0
     ##   species.cluster.no_norm viral.scaffold.no_norm virus.no_norm
-    ## 1               1108.9665              1237.4443     1108.9665
-    ## 2               1323.9670              1344.3357     1323.9670
-    ## 3                736.7194               900.4348      736.7194
-    ## 4               1584.2423              1629.5064     1584.2423
-    ## 5               1181.7140              1289.7564     1181.7140
-    ## 6               1145.7243              1241.2013     1145.7243
+    ## 1                994.0127              1237.4443     1108.9665
+    ## 2                977.6987              1344.3357     1323.9670
+    ## 3                625.6268               900.4348      736.7194
+    ## 4               1267.3938              1629.5064     1584.2423
+    ## 5                985.8871              1289.7564     1181.7140
+    ## 6                802.0070              1241.2013     1145.7243
     ##   viral_contig_percent_10000 viral_reads_percent contig_10000_reads_percent
     ## 1                   12.29013            5.702380                   50.53836
     ## 2                   14.93213            1.572852                   24.34480
@@ -410,12 +410,12 @@ head(tableS1)
     ## 5                   32648308             11399     87215534 18449 2636  630
     ## 6                    9552820              4419     31769357 18285 2469  312
     ##    L90 Number of viral contigs Number of VMAGs Number of species clusters
-    ## 1 9698                     183             164                        164
-    ## 2 4730                      66              65                         65
-    ## 3 8530                     154             126                        126
-    ## 4 3407                      72              70                         70
-    ## 5 7579                     191             175                        175
-    ## 6 2977                      65              60                         60
+    ## 1 9698                     183             164                        147
+    ## 2 4730                      66              65                         48
+    ## 3 8530                     154             126                        107
+    ## 4 3407                      72              70                         56
+    ## 5 7579                     191             175                        146
+    ## 6 2977                      65              60                         42
     ##   Number of genus clusters Number of VMAGs with taxonomy information
     ## 1                      124                                        54
     ## 2                       58                                        10
@@ -510,6 +510,66 @@ head(vir_info)
     ## 4           NA                            
     ## 5       100.00     HMM-based (lower-bound)
     ## 6           NA
+
+## Virus species cluster representatives
+
+``` r
+species_reps <- read.csv("../Tables/drep_cluster_reps.csv", header=TRUE) %>%
+  rename(`Species cluster representative` = Species.cluster.representative)
+saveRDS(species_reps, file= "../Data/species_reps.RDS")
+head(species_reps)
+```
+
+    ##      Sample                    Genome Species cluster representative
+    ## 1 ERR594353   ERR594353__vRhyme_bin_1        ERR594353__vRhyme_bin_1
+    ## 2 ERR594353  ERR594353__vRhyme_bin_10       ERR594353__vRhyme_bin_10
+    ## 3 ERR594353 ERR594353__vRhyme_bin_100      ERR594353__vRhyme_bin_100
+    ## 4 ERR594353 ERR594353__vRhyme_bin_101      ERR594353__vRhyme_bin_101
+    ## 5 ERR594353 ERR594353__vRhyme_bin_102      ERR594353__vRhyme_bin_102
+    ## 6 ERR594353 ERR594353__vRhyme_bin_103      ERR594353__vRhyme_bin_103
+
+## Virus genome completeness
+
+Filter the dataframe such that: - There are no NA values for
+completeness - Each species cluster representative is has member genomes
+in both Viromes and Mixed MGs for each sample source
+
+``` r
+completeness <- vir_info %>%
+  select(sample, genome, completeness) %>%
+  rename(Sample = sample, Genome = genome, Completeness = completeness) %>%
+  inner_join(data_reform %>%
+               select(Sample, sample_source, Environment, Method)) %>%
+  inner_join(species_reps %>%
+               select(Genome, `Species cluster representative`)) %>%
+  mutate(Method = case_when(Method == "virome" ~ "Virome",
+                            Method == "metagenome" ~ "Mixed MG")) %>%
+  mutate(Method = factor(Method, levels = c("Mixed MG", "Virome"))) %>%
+  mutate(Environment = case_when(Environment == "adult_gut" ~ "Human gut",
+                                 Environment == "freshwater" ~ "Freshwater",
+                                 Environment == "marine" ~ "Marine",
+                                 Environment == "soil" ~ "Soil")) %>%
+  filter(is.na(Completeness) == F)
+
+completeness <- completeness %>%
+  group_by(`Species cluster representative`, sample_source) %>%
+  filter(n_distinct(Method) == 2) %>%
+  ungroup()
+
+saveRDS(completeness, file= "../Data/virus_genome_completeness.RDS")
+head(completeness)
+```
+
+    ## # A tibble: 6 × 7
+    ##   Sample    Genome                 Completeness sample_source Environment Method
+    ##   <chr>     <chr>                         <dbl> <chr>         <chr>       <fct> 
+    ## 1 ERR599148 ERR599148__vRhyme_unb…        100   TARA_076_DCM  Marine      Mixed…
+    ## 2 ERR599148 ERR599148__vRhyme_unb…         50.9 TARA_076_DCM  Marine      Mixed…
+    ## 3 ERR599148 ERR599148__vRhyme_unb…        100   TARA_076_DCM  Marine      Mixed…
+    ## 4 ERR599148 ERR599148__vRhyme_unb…         31.5 TARA_076_DCM  Marine      Mixed…
+    ## 5 ERR599148 ERR599148__vRhyme_unb…         18.9 TARA_076_DCM  Marine      Mixed…
+    ## 6 ERR599148 ERR599148__vRhyme_unb…         95.0 TARA_076_DCM  Marine      Mixed…
+    ## # ℹ 1 more variable: `Species cluster representative` <chr>
 
 ## Virus taxonomy
 
@@ -1011,12 +1071,12 @@ head(tmeans.mar)
     ## ERR594379__vRhyme_unbinned_287 0.0000000  35.0715100 0.00000000  0.000000
     ## ERR594364__vRhyme_unbinned_706 0.5737795   0.0000000 0.00000000  0.000000
     ##                                 ERR599146 ERR599017 ERR599126 ERR594407
-    ## ERR594392__vRhyme_unbinned_120 0.09948742         0  0.334809         0
-    ## ERR599144__vRhyme_unbinned_1   0.00000000         0  0.000000         0
-    ## ERR594388__vRhyme_unbinned_985 0.00000000         0  0.000000         0
-    ## ERR594382__vRhyme_unbinned_389 0.00000000         0  0.000000         0
-    ## ERR594379__vRhyme_unbinned_287 0.00000000         0  0.000000         0
-    ## ERR594364__vRhyme_unbinned_706 0.00000000         0  0.000000         0
+    ## ERR594392__vRhyme_unbinned_120 0.09948742         0 0.3348089         0
+    ## ERR599144__vRhyme_unbinned_1   0.00000000         0 0.0000000         0
+    ## ERR594388__vRhyme_unbinned_985 0.00000000         0 0.0000000         0
+    ## ERR594382__vRhyme_unbinned_389 0.00000000         0 0.0000000         0
+    ## ERR594379__vRhyme_unbinned_287 0.00000000         0 0.0000000         0
+    ## ERR594364__vRhyme_unbinned_706 0.00000000         0 0.0000000         0
     ##                                ERR599005 ERR599165  ERR594353 ERR598984
     ## ERR594392__vRhyme_unbinned_120 0.0000000         0 0.07292637 1.1387854
     ## ERR599144__vRhyme_unbinned_1   0.0000000         0 0.00000000 0.0000000
@@ -1094,12 +1154,12 @@ head(tmeans.soil)
     ## SRR8487022_vRhyme_unbinned_703   0.9800538  0.0000000   2.973771  0.0000000
     ## SRR8487017_vRhyme_unbinned_41  103.2752000  0.8369015  83.088540  0.2916622
     ##                                SRR8487014 SRR8487028 SRR8487023 SRR8487012
-    ## SRR8487014_vRhyme_bin_28        3.4940104  0.0000000   3.326531   0.000000
-    ## SRR8487018_vRhyme_bin_107       2.4005299  0.0000000   3.379848   0.000000
-    ## SRR8487020_vRhyme_unbinned_111  3.1733105  0.0728911   6.802610   0.000000
-    ## SRR8487022_vRhyme_unbinned_642  1.3404564  0.0000000   3.103257   0.000000
-    ## SRR8487022_vRhyme_unbinned_703  0.8799907  0.0000000   1.750573   0.000000
-    ## SRR8487017_vRhyme_unbinned_41  99.7961300  0.2162453 123.793920   0.987036
+    ## SRR8487014_vRhyme_bin_28        3.4940104  0.0000000   3.326531  0.0000000
+    ## SRR8487018_vRhyme_bin_107       2.4005299  0.0000000   3.379848  0.0000000
+    ## SRR8487020_vRhyme_unbinned_111  3.1733105  0.0728911   6.802610  0.0000000
+    ## SRR8487022_vRhyme_unbinned_642  1.3404564  0.0000000   3.103257  0.0000000
+    ## SRR8487022_vRhyme_unbinned_703  0.8799907  0.0000000   1.750573  0.0000000
+    ## SRR8487017_vRhyme_unbinned_41  99.7961300  0.2162453 123.793920  0.9870361
     ##                                SRR8487011 SRR8487019 SRR8487030  SRR8487016
     ## SRR8487014_vRhyme_bin_28        1.1512060   2.322108 0.00000000   2.7510898
     ## SRR8487018_vRhyme_bin_107       3.2740630   3.324030 0.00000000   4.2726180
@@ -1142,6 +1202,61 @@ saveRDS(tmeans.soil.vir, file="../Data/tmeans_soil_vir.RDS")
 tmeans.soil.mg <- tmeans.soil[colnames(tmeans.soil) %in% subset(data_reform, env2=="Soil" & method2 == "Mixed MG")$Sample]
 saveRDS(tmeans.soil.mg, file="../Data/tmeans_soil_mg.RDS")
 ```
+
+# Get differences in genome coverage (breadth) between viromes and metagenomes across all samples
+
+## Get vMAGs from every environment that were detected in both viromes and metagenomes
+
+## Format and filter breadths data
+
+``` r
+breadths <- rbind(melt(breadth.fw %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value),
+                  melt(breadth.gut %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value),
+                  melt(breadth.mar %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value),
+                  melt(breadth.soil %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value)) %>%
+  inner_join(data_reform %>%
+               select(Sample, sample_source, Environment, Method)) %>%
+  inner_join(vir_info %>%
+               select(genome, completeness),
+             by = join_by(Genome==genome)) %>%
+  filter(Breadth >= 0.75, completeness==100) 
+
+breadths <- breadths %>%
+  filter(Genome %in% subset(breadths, Method == "virome")$Genome & Genome %in% subset(breadths, Method == "metagenome")$Genome) %>%
+  select(-completeness) %>%
+  mutate(Method = case_when(Method == "virome" ~ "Virome",
+                            Method == "metagenome" ~ "Mixed MG"),
+         Environment = case_when(Environment == "human_gut" ~ "Human Gut",
+                                 Environment == "freshwater" ~ "Freshwater",
+                                 Environment == "marine" ~ "Marine",
+                                 Environment == "soil" ~ "Soil"))
+
+saveRDS(breadths, file="../Data/breadths.RDS")
+head(breadths)
+```
+
+    ##                           Genome    Sample   Breadth       sample_source
+    ## 1 Ga0485159__vRhyme_unbinned_300 Ga0485186 0.9257947 ME_2020-10-19_23.5m
+    ## 2      Ga0485175__vRhyme_bin_121 Ga0485186 0.8385605 ME_2020-10-19_23.5m
+    ## 3 Ga0485173__vRhyme_unbinned_394 Ga0485186 0.8625234 ME_2020-10-19_23.5m
+    ## 4 Ga0485178__vRhyme_unbinned_862 Ga0485186 0.7603572 ME_2020-10-19_23.5m
+    ## 5      Ga0485175__vRhyme_bin_447 Ga0485186 0.9271312 ME_2020-10-19_23.5m
+    ## 6       Ga0485159__vRhyme_bin_64 Ga0485186 0.8584101 ME_2020-10-19_23.5m
+    ##   Environment Method
+    ## 1  Freshwater Virome
+    ## 2  Freshwater Virome
+    ## 3  Freshwater Virome
+    ## 4  Freshwater Virome
+    ## 5  Freshwater Virome
+    ## 6  Freshwater Virome
 
 # Depth per position for highlighted vMAGs
 

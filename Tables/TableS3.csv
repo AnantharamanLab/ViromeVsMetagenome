@@ -1,121 +1,128 @@
-Enrichment,Class,pval,Test,padj,Environment
-Mixed MG,unknown function,3.3467026544817944e-8,Over,1.6733513272408973e-7,Freshwater
-Mixed MG,lysis,1,Over,1,Freshwater
-Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.7681482448931661,Over,1,Freshwater
-Mixed MG,"DNA, RNA and nucleotide metabolism",0.15810733597140994,Over,0.3513496354920221,Freshwater
-Mixed MG,other,0.0625918316243414,Over,0.1564795790608535,Freshwater
-Mixed MG,tail,0.999997778322542,Over,1,Freshwater
-Mixed MG,head and packaging,1,Over,1,Freshwater
-Mixed MG,connector,0.9998166340788153,Over,1,Freshwater
-Mixed MG,integration and excision,1.3897902855315699e-47,Over,2.7795805710631395e-46,Freshwater
-Mixed MG,transcription regulation,0.054021074270927914,Over,0.15434592648836548,Freshwater
-Mixed MG,unknown function,0.9999999665329735,Under,1,Freshwater
-Mixed MG,lysis,6.784324970208582e-17,Under,4.522883313472388e-16,Freshwater
-Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.23185175510683387,Under,0.46370351021366774,Freshwater
-Mixed MG,"DNA, RNA and nucleotide metabolism",0.8418926640285901,Under,1,Freshwater
-Mixed MG,other,0.9374081683756585,Under,1,Freshwater
-Mixed MG,tail,2.2216774579705593e-6,Under,8.886709831882237e-6,Freshwater
-Mixed MG,head and packaging,1.6577586550452262e-19,Under,1.6577586550452262e-18,Freshwater
-Mixed MG,connector,1.8336592118480167e-4,Under,6.112197372826723e-4,Freshwater
-Mixed MG,integration and excision,1,Under,1,Freshwater
-Mixed MG,transcription regulation,0.945978925729072,Under,1,Freshwater
-Virome,unknown function,0.9999999620538234,Over,1,Freshwater
-Virome,lysis,2.5034218634114742e-17,Over,1.668947908940983e-16,Freshwater
-Virome,"moron, auxiliary metabolic gene and host takeover",0.21010530723455942,Over,0.42021061446911884,Freshwater
-Virome,"DNA, RNA and nucleotide metabolism",0.8324628116166781,Over,1,Freshwater
-Virome,other,0.9306762552574743,Over,1,Freshwater
-Virome,tail,1.7217748023070575e-6,Over,6.88709920922823e-6,Freshwater
-Virome,head and packaging,1.0640851210707813e-19,Over,1.0640851210707812e-18,Freshwater
-Virome,connector,1.0931339469652826e-4,Over,3.6437798232176086e-4,Freshwater
-Virome,integration and excision,1,Over,1,Freshwater
-Virome,transcription regulation,0.9269231101138415,Over,1,Freshwater
-Virome,unknown function,3.794617661368324e-8,Under,1.8973088306841622e-7,Freshwater
-Virome,lysis,1,Under,1,Freshwater
-Virome,"moron, auxiliary metabolic gene and host takeover",0.7898946927654406,Under,1,Freshwater
-Virome,"DNA, RNA and nucleotide metabolism",0.16753718838332188,Under,0.37230486307404864,Freshwater
-Virome,other,0.0693237447425257,Under,0.18269222471539617,Freshwater
-Virome,tail,0.9999982782251977,Under,1,Freshwater
-Virome,head and packaging,1,Under,1,Freshwater
-Virome,connector,0.9998906866053034,Under,1,Freshwater
-Virome,integration and excision,2.6819500636907472e-46,Under,5.363900127381495e-45,Freshwater
-Virome,transcription regulation,0.07307688988615847,Under,0.18269222471539617,Freshwater
-Virome,tail,0.9983645685181344,Over,0.9999999952852952,Marine
-Virome,unknown function,4.7147048522224215e-9,Over,9.429409704444843e-8,Marine
-Virome,head and packaging,0.07627194749248113,Over,0.25423982497493713,Marine
-Virome,lysis,0.6740315442712865,Over,0.9999999952852952,Marine
-Virome,"DNA, RNA and nucleotide metabolism",0.9992448618825992,Over,0.9999999952852952,Marine
-Virome,other,0.9968435438271666,Over,0.9999999952852952,Marine
-Virome,"moron, auxiliary metabolic gene and host takeover",0.9963297732560075,Over,0.9999999952852952,Marine
-Virome,connector,0.8527523956728456,Over,0.9999999952852952,Marine
-Virome,transcription regulation,0.6517585380626765,Over,0.9999999952852952,Marine
-Virome,integration and excision,0.602566339554267,Over,0.9999999952852952,Marine
-Virome,tail,0.0016354314818656699,Under,0.010902876545771134,Marine
-Virome,unknown function,0.9999999952852952,Under,0.9999999952852952,Marine
-Virome,head and packaging,0.9237280525075189,Under,0.9999999952852952,Marine
-Virome,lysis,0.3259684557287135,Under,0.7738699154162746,Marine
-Virome,"DNA, RNA and nucleotide metabolism",7.551381174007933e-4,Under,0.007551381174007933,Marine
-Virome,other,0.003156456172833467,Under,0.014680906975970196,Marine
-Virome,"moron, auxiliary metabolic gene and host takeover",0.003670226743992549,Under,0.014680906975970196,Marine
-Virome,connector,0.1472476043271545,Under,0.4207074409347272,Marine
-Virome,transcription regulation,0.3482414619373235,Under,0.7738699154162746,Marine
-Virome,integration and excision,0.39743366044573303,Under,0.7948673208914661,Marine
-Mixed MG,tail,5.340581724996047e-4,Over,0.0012185027474229432,Marine
-Mixed MG,unknown function,0.9999999874533511,Over,1,Marine
-Mixed MG,head and packaging,0.8815783198407968,Over,1,Marine
-Mixed MG,lysis,0,Over,0,Marine
-Mixed MG,"DNA, RNA and nucleotide metabolism",2.1602642610169732e-4,Over,7.200880870056578e-4,Marine
-Mixed MG,other,5.483262363403244e-4,Over,0.0012185027474229432,Marine
-Mixed MG,"moron, auxiliary metabolic gene and host takeover",3.968527973365561e-4,Over,0.0011338651352473031,Marine
-Mixed MG,connector,0,Over,0,Marine
-Mixed MG,transcription regulation,0,Over,0,Marine
-Mixed MG,integration and excision,0,Over,0,Marine
-Mixed MG,tail,0.9994659418275004,Under,1,Marine
-Mixed MG,unknown function,1.2546648941781446e-8,Under,5.018659576712578e-8,Marine
-Mixed MG,head and packaging,0.11842168015920321,Under,0.23684336031840642,Marine
-Mixed MG,lysis,1,Under,1,Marine
-Mixed MG,"DNA, RNA and nucleotide metabolism",0.9997839735738983,Under,1,Marine
-Mixed MG,other,0.9994516737636596,Under,1,Marine
-Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.9996031472026634,Under,1,Marine
-Mixed MG,connector,1,Under,1,Marine
-Mixed MG,transcription regulation,1,Under,1,Marine
-Mixed MG,integration and excision,1,Under,1,Marine
-Virome,unknown function,0.999999999999896,Over,0.999999999999896,Soil
-Virome,head and packaging,2.2093890429018767e-12,Over,2.2093890429018767e-11,Soil
-Virome,tail,0.0019157559722889142,Over,0.009578779861444571,Soil
-Virome,lysis,0.02493523808414084,Over,0.08311746028046947,Soil
-Virome,"DNA, RNA and nucleotide metabolism",0.04896675306067016,Over,0.13990500874477188,Soil
-Virome,"moron, auxiliary metabolic gene and host takeover",0.011806986973937086,Over,0.04722794789574834,Soil
-Virome,other,0.7766649194373363,Over,0.999999999999896,Soil
-Virome,connector,9.737957430474025e-4,Over,0.006491971620316017,Soil
-Virome,integration and excision,0.35634620329021316,Over,0.7918804517560293,Soil
-Virome,transcription regulation,0.4222873900293257,Over,0.8445747800586514,Soil
-Virome,unknown function,1.0403507693725185e-13,Under,2.0807015387450368e-12,Soil
-Virome,head and packaging,0.9999999999977907,Under,0.999999999999896,Soil
-Virome,tail,0.9980842440277111,Under,0.999999999999896,Soil
-Virome,lysis,0.9750647619158592,Under,0.999999999999896,Soil
-Virome,"DNA, RNA and nucleotide metabolism",0.9510332469393299,Under,0.999999999999896,Soil
-Virome,"moron, auxiliary metabolic gene and host takeover",0.988193013026063,Under,0.999999999999896,Soil
-Virome,other,0.2233350805626637,Under,0.5583377014066593,Soil
-Virome,connector,0.9990262042569527,Under,0.999999999999896,Soil
-Virome,integration and excision,0.6436537967097868,Under,0.999999999999896,Soil
-Virome,transcription regulation,0.5777126099706743,Under,0.999999999999896,Soil
-Mixed MG,unknown function,3.004236657286867e-14,Over,3.004236657286867e-13,Soil
-Mixed MG,head and packaging,0.9999999999867464,Over,1,Soil
-Mixed MG,tail,0.994239737443209,Over,1,Soil
-Mixed MG,lysis,0.8813530303376365,Over,1,Soil
-Mixed MG,"DNA, RNA and nucleotide metabolism",0.9079817077985275,Over,1,Soil
-Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.9356800085852479,Over,1,Soil
-Mixed MG,other,0.09166309798748379,Over,0.23004573050368127,Soil
-Mixed MG,connector,0.9881930130260629,Over,1,Soil
-Mixed MG,integration and excision,0.2989951512046999,Over,0.5979903024093998,Soil
-Mixed MG,transcription regulation,0,Over,0,Soil
-Mixed MG,unknown function,0.99999999999997,Under,1,Soil
-Mixed MG,head and packaging,1.3253689453225518e-11,Under,8.835792968817012e-11,Soil
-Mixed MG,tail,0.005760262556791007,Under,0.028801312783955035,Soil
-Mixed MG,lysis,0.11864696966236353,Under,0.26365993258303005,Soil
-Mixed MG,"DNA, RNA and nucleotide metabolism",0.0920182922014725,Under,0.23004573050368127,Soil
-Mixed MG,"moron, auxiliary metabolic gene and host takeover",0.06431999141475213,Under,0.2143999713825071,Soil
-Mixed MG,other,0.9083369020125163,Under,1,Soil
-Mixed MG,connector,0.011806986973937091,Under,0.047227947895748364,Soil
-Mixed MG,integration and excision,0.7010048487953001,Under,1,Soil
-Mixed MG,transcription regulation,1,Under,1,Soil
+genome,sample,environment,contig,gene,start,stop,start relative,stop relative,frame,phrog,pharokka gene prediction method,phrog annot	phrog category,
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0001,1,1653,2789,4441,+,156,PHANOTATE,portal protein,head and packaging
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0002,1650,2012,4438,4800,+,858,PHANOTATE,starvation-inducible transcriptional regulator,transcription regulation
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0003,2016,2318,4804,5106,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0004,2318,2551,5106,5339,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0005,2563,4527,5351,7315,+,22896,PHANOTATE,tail protein,tail
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0006,4524,4667,7312,7455,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0007,4660,4971,7448,7759,+,7802,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0008,4971,5123,7759,7911,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0009,5150,5434,7938,8222,+,7802,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0010,5441,6805,8229,9593,+,13144,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0011,6815,7717,9603,10635,+,18345,PHANOTATE,tail fiber protein,tail
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0012,7800,8582,10718,11500,+,8865,PHANOTATE,head scaffolding protein,head and packaging
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0013,8631,9812,11549,12730,+,283,PHANOTATE,major head protein,head and packaging
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0014,9841,10239,12759,13157,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0015,10295,10615,13213,13533,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0016,10649,10825,13567,13743,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0017,10825,11538,13743,14456,+,12985,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0018,11538,13226,14456,16144,+,578,PHANOTATE,head closure Hc3,connector
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0019,13219,14406,16137,17324,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0020,14408,15208,17326,18126,+,26190,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0021,15208,15864,18126,18782,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0022,15874,16209,18792,19127,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0023,16296,16664,19214,19582,+,1249,PHANOTATE,acetyltransferase,other
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0024,16665,17399,19583,20317,+,598,PHANOTATE,DNA ejection,"DNA, RNA and nucleotide metabolism"
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0025,17402,18664,20320,21582,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0026,18668,20395,21586,23313,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0027,20395,20529,23313,23447,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0028,20522,20758,23440,23676,+,462,PHANOTATE,lipoprotein,other
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0029,20755,21168,23673,24086,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0030,21165,21650,24083,24568,+,6637,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0031,21836,22132,24754,25050,+,7,PHANOTATE,endolysin,lysis
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0032,22210,22506,25128,25424,+,1233,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0033,22597,23574,25515,26492,+,7339,PHANOTATE,DNA repair exonuclease,"DNA, RNA and nucleotide metabolism"
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0034,24060,23743,26978,26661,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0035,24365,24015,27283,26933,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0036,24979,24362,27897,27280,-,16528,PHANOTATE,DNA methyltransferase,other
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0037,25631,25176,28549,28094,-,16143,PHANOTATE,DNA methyltransferase,other
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0038,25684,26178,28602,29096,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0039,26276,26866,29194,29784,+,21649,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0040,26863,27087,29781,30005,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0041,27087,27710,30005,30628,+,149,PHANOTATE,exonuclease,"DNA, RNA and nucleotide metabolism"
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0042,27707,28009,30625,30927,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0043,28087,28320,31005,31238,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0044,28317,28571,31235,31489,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0045,28568,28894,31486,31812,+,5086,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0046,28891,29049,31809,31967,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0047,29046,29345,31964,32263,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0048,29381,29602,32299,32520,+,4973,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0049,29693,31000,32611,33918,+,1156,PHANOTATE,DNA primase,"DNA, RNA and nucleotide metabolism"
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0050,31264,31088,34182,34006,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0051,31386,31258,34304,34176,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0052,31598,31383,34516,34301,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0053,31849,31595,34767,34513,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0054,32625,31846,35543,34764,-,1617,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0055,32752,32639,35670,35557,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0056,32925,32755,35843,35673,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485172__vRhyme_unbinned_38,Ga0485172,freshwater,vRhyme_unbinned_38__Ga0485172_0000163_reverse_complement,VXJRLFAH_CDS_0057,33169,32933,36087,35851,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0001,1,1491,1,1491,+,5902,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0002,1491,1748,1491,1748,+,10346,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0003,1748,1918,1748,1918,+,16028,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0004,1921,2118,1921,2118,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0005,2118,2258,2118,2258,+,2423,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0006,2260,4440,2260,4436,+,156,PHANOTATE,portal protein,head and packaging
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0007,4437,4799,4433,4795,+,858,PHANOTATE,starvation-inducible transcriptional regulator,transcription regulation
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0008,4803,5105,4799,5101,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0009,5105,5338,5101,5334,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0010,5350,6840,5346,6836,+,29288,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0011,6830,7441,6826,7437,+,22896,PHANOTATE,tail protein,tail
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0012,7438,7581,7434,7577,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0013,7574,7885,7570,7881,+,7802,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0014,7885,8037,7881,8033,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0015,8064,8348,8060,8344,+,7802,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0016,8355,9719,8351,9715,+,13144,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0017,9729,10631,9725,10627,+,18345,PHANOTATE,tail fiber protein,tail
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0018,10714,11496,10710,11492,+,8865,PHANOTATE,head scaffolding protein,head and packaging
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0019,11545,12726,11541,12722,+,283,PHANOTATE,major head protein,head and packaging
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0020,12755,13153,12751,13149,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0021,13209,13529,13205,13525,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0022,13563,13739,13559,13735,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0023,13739,14452,13735,14448,+,12985,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0024,14452,16140,14448,16136,+,578,PHANOTATE,head closure Hc3,connector
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0025,16133,17320,16129,17316,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0026,17322,18122,17318,18118,+,26190,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0027,18122,18778,18118,18774,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0028,18788,19123,18784,19119,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0029,19210,19578,19206,19574,+,1249,PHANOTATE,acetyltransferase,other
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0030,19579,20313,19575,20309,+,598,PHANOTATE,DNA ejection,"DNA, RNA and nucleotide metabolism"
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0031,20316,21578,20312,21574,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0032,21582,23309,21578,23305,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0033,23309,23443,23305,23439,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0034,23436,23672,23432,23668,+,462,PHANOTATE,lipoprotein,other
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0035,23669,24082,23665,24078,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0036,24079,24564,24075,24560,+,6637,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0037,24561,25046,24557,25042,+,7,PHANOTATE,endolysin,lysis
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0038,25124,25420,25120,25416,+,1233,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0039,25511,26488,25507,26484,+,7339,PHANOTATE,DNA repair exonuclease,"DNA, RNA and nucleotide metabolism"
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0040,26974,26657,26970,26653,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0041,27279,26929,27275,26925,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0042,27893,27276,27889,27272,-,16528,PHANOTATE,DNA methyltransferase,other
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0043,28545,28090,28541,28086,-,16143,PHANOTATE,DNA methyltransferase,other
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0044,28598,29092,28594,29088,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0045,29061,29174,29057,29170,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0046,29190,29780,29186,29776,+,21649,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0047,29777,30001,29773,29997,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0048,30001,30624,29997,30620,+,149,PHANOTATE,exonuclease,"DNA, RNA and nucleotide metabolism"
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0049,30621,30923,30617,30919,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0050,31001,31234,30997,31230,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0051,31231,31485,31227,31481,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0052,31482,31808,31478,31804,+,5086,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0053,31805,31963,31801,31959,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0054,31960,32259,31956,32255,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0055,32295,32516,32291,32512,+,4973,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0056,32607,33914,32603,33910,+,1156,PHANOTATE,DNA primase,"DNA, RNA and nucleotide metabolism"
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0057,34178,34002,34174,33998,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0058,34300,34172,34296,34168,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0059,34512,34297,34508,34293,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0060,34763,34509,34759,34505,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0061,35539,34760,35535,34756,-,1617,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0062,35666,35553,35662,35549,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0063,35839,35669,35835,35665,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0064,35969,35847,35965,35843,-,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0065,36051,36158,36047,36154,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0066,36211,36528,36207,36524,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0067,36572,36697,36568,36693,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0068,36703,36894,36699,36890,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0069,36881,37354,36877,37350,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function
+Ga0485184__vRhyme_unbinned_566,Ga0485184,freshwater,vRhyme_unbinned_566__Ga0485184_000256,EGNDLYYE_CDS_0070,37338,38162,37334,38158,+,No_PHROG,PHANOTATE,hypothetical protein,unknown function

@@ -184,7 +184,7 @@ FigS6 <- ggplot(vmag.perm.all.tidy, aes(Sites, Species, color = Method)) +
   geom_point(alpha = 0.01)+
   geom_line(data = all.richness, size = 1, shape = 16) +
   facet_wrap(. ~ Environment, ncol = 4, scales="free_y") +
-  scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+  scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
   xlim(0,21) +
   ylab("Cumulative Richness\n(Number of Species Rep. VMAGs)") +
   xlab("Sampling Effort (Number of Samples)") +

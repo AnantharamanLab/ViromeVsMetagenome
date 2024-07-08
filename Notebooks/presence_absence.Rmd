@@ -198,15 +198,15 @@ vir_tax_fam_factored$Family <- factor(vir_tax_fam_factored$Family, levels=c(sort
 ```{r FigS4, fig.height=6.5, fig.width=9}
 FigS4 <- ggplot(data=vir_tax_fam_factored) +
   geom_bar(aes(x=Family, fill=Method), stat="count", position=position_dodge()) +
-  geom_text(stat='count', position = position_dodge(1), aes(x=Family, fill=Method, color=Method, label=..count..), vjust = -0.5, size = 3) +
+  geom_text(stat='count', position = position_dodge(1), aes(x=Family, fill=Method, color=Method, label=..count..), vjust = -0.5, size = 3, show.legend = FALSE) +
   scale_y_log10(limits = c(1,100000)) +
   facet_wrap(~Environment, ncol=1) +
   theme_linedraw() +
   theme(legend.position = "right", axis.text.x = element_text(angle = 45, hjust=1)) +
   ylab("Count") +
   xlab("Family") +
-  scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
-  scale_fill_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5"))
+  scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+  scale_fill_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5"))
 FigS4
 ggsave("../Plots/FigS4.png", plot=FigS4, device = "png", width = 9, height = 6.5, units = "in", dpi = 600, scale = 1.5)
 ```

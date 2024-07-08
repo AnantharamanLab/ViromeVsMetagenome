@@ -11,7 +11,6 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 ```
 
 # Load packages
-
 ```{r load-packages}
 library(tidyverse); packageVersion("tidyverse")
 library(reshape2); packageVersion("reshape2")
@@ -250,6 +249,43 @@ tmeans.soil.mg <- tmeans.soil[colnames(tmeans.soil) %in% subset(data_reform, env
 saveRDS(tmeans.soil.mg, file="../Data/tmeans_soil_mg.RDS")
 ```
 
+# Get differences in genome coverage (breadth) between viromes and metagenomes across all samples
+## Get vMAGs from every environment that were detected in both viromes and metagenomes
+## Format and filter breadths data
+```{r format-breadths}
+breadths <- rbind(melt(breadth.fw %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value),
+                  melt(breadth.gut %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value),
+                  melt(breadth.mar %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value),
+                  melt(breadth.soil %>%
+                         rownames_to_column(var = "Genome")) %>%
+                    rename(Sample=variable, Breadth=value)) %>%
+  inner_join(data_reform %>%
+               select(Sample, sample_source, Environment, Method)) %>%
+  inner_join(vir_info %>%
+               select(genome, completeness),
+             by = join_by(Genome==genome)) %>%
+  filter(Breadth >= 0.75, completeness==100) 
+
+breadths <- breadths %>%
+  filter(Genome %in% subset(breadths, Method == "virome")$Genome & Genome %in% subset(breadths, Method == "metagenome")$Genome) %>%
+  select(-completeness) %>%
+  mutate(Method = case_when(Method == "virome" ~ "Virome",
+                            Method == "metagenome" ~ "Mixed MG"),
+         Environment = case_when(Environment == "human_gut" ~ "Human Gut",
+                                 Environment == "freshwater" ~ "Freshwater",
+                                 Environment == "marine" ~ "Marine",
+                                 Environment == "soil" ~ "Soil"))
+
+saveRDS(breadths, file="../Data/breadths.RDS")
+head(breadths)
+```
+
 # Depth per position for highlighted vMAGs
 ## Load and format coverage tables
 ```{r load-coverage-tables}
@@ -387,6 +423,7 @@ features <- rbind(features.Ga0485184__vRhyme_unbinned_566, features.Ga0485172__v
 saveRDS(features, file="../Data/features_combined.RDS")
 head(features)
 ```
+
 ## Save dataframe representing shaded absent regions
 ```{r features-absent-regions}
 rect <- data.frame(xmin = c(missing_range_start, 0), xmax = c(missing_range_end, 0), 

@@ -1,7 +1,7 @@
 Figure 3, Figure S4, Figure S5
 ================
 James C. Kosmopoulos
-2023-12-05
+2024-07-08
 
 # Load packages
 
@@ -15,19 +15,19 @@ library(tidyverse); packageVersion("tidyverse")
 library(eulerr); packageVersion("eulerr")
 ```
 
-    ## [1] '7.0.0'
+    ## [1] '7.0.2'
 
 ``` r
 library(cowplot); packageVersion("cowplot")
 ```
 
-    ## [1] '1.1.1'
+    ## [1] '1.1.3'
 
 ``` r
 library(vegan); packageVersion("vegan")
 ```
 
-    ## [1] '2.6.4'
+    ## [1] '2.6.6.1'
 
 # Load data
 
@@ -243,15 +243,15 @@ vir_tax_fam_factored$Family <- factor(vir_tax_fam_factored$Family, levels=c(sort
 ``` r
 FigS4 <- ggplot(data=vir_tax_fam_factored) +
   geom_bar(aes(x=Family, fill=Method), stat="count", position=position_dodge()) +
-  geom_text(stat='count', position = position_dodge(1), aes(x=Family, fill=Method, color=Method, label=..count..), vjust = -0.5, size = 3) +
+  geom_text(stat='count', position = position_dodge(1), aes(x=Family, fill=Method, color=Method, label=..count..), vjust = -0.5, size = 3, show.legend = FALSE) +
   scale_y_log10(limits = c(1,100000)) +
   facet_wrap(~Environment, ncol=1) +
   theme_linedraw() +
   theme(legend.position = "right", axis.text.x = element_text(angle = 45, hjust=1)) +
   ylab("Count") +
   xlab("Family") +
-  scale_color_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
-  scale_fill_manual(name= "Method", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5"))
+  scale_color_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5")) +
+  scale_fill_manual(name= "Sample type", values = c("Virome" = "#D81B60", "Mixed MG" = "#1E88E5"))
 FigS4
 ```
 
